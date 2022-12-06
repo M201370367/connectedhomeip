@@ -327,6 +327,9 @@ AndroidDeviceControllerWrapper * AndroidDeviceControllerWrapper::AllocateNew(
         ipkSpan = chip::GroupTesting::DefaultIpkValue::GetDefaultIpk();
     }
 
+    ChipLogProgress(Controller, "after generate ipk:");
+    ChipLogByteSpan(Controller, ipkSpan);
+
     *errInfoOnFailure = chip::Credentials::SetSingleIpkEpochKey(
         &wrapper->mGroupDataProvider, wrapper->Controller()->GetFabricIndex(), ipkSpan, compressedFabricIdSpan);
 
@@ -571,6 +574,9 @@ CHIP_ERROR AndroidDeviceControllerWrapper::initLocalPhoneCert(chip::NodeId nodeI
     {
         ipkSpan = chip::GroupTesting::DefaultIpkValue::GetDefaultIpk();
     }
+
+    ChipLogProgress(Controller, "after generate ipk:");
+    ChipLogByteSpan(Controller, ipkSpan);
 
     *errInfoOnFailure = chip::Credentials::SetSingleIpkEpochKey(
         &mGroupDataProvider, mController.get()->GetFabricIndex(), ipkSpan, compressedFabricIdSpan);

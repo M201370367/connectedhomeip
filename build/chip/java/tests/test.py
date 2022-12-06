@@ -24,7 +24,7 @@ import unittest
 
 
 class JavaBuildTest(unittest.TestCase):
-    chip_root = os.getenv('PW_PROJECT_ROOT')
+    chip_root = '/home/mi/project/v9-matter/my_chip/connectedhomeip/third_party/simw-top-mini/repo/demos/se05x_dev_attest_key_prov/linux'
     local_test_dir = '/build/chip/java/tests'
     test_dir = chip_root + local_test_dir
 

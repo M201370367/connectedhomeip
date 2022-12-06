@@ -24,15 +24,21 @@ import android.util.Log;
 /** Android implementation of a key/value store using SharedPreferences. */
 public class PreferencesKeyValueStoreManager implements KeyValueStoreManager {
   private final String TAG = KeyValueStoreManager.class.getSimpleName();
-  private final String PREFERENCE_FILE_KEY = "chip.platform.KeyValueStore";
+  private String mChipSp = "chip.platform.KeyValueStore";
   private SharedPreferences preferences;
 
   private final static String  kOperationalCredentialsIssuerKeypairStorage   = "AndroidDeviceControllerKey";
   public final static String  kOperationalCredentialsRootCertificateStorage = "AndroidCARootCert1";
   public final static String  kOperationalCredentialsICACStorage = "AndroidICAC1";
 
+  @Deprecated
   public PreferencesKeyValueStoreManager(Context context) {
-    preferences = context.getSharedPreferences(PREFERENCE_FILE_KEY, Context.MODE_PRIVATE);
+    preferences = context.getSharedPreferences(mChipSp, Context.MODE_PRIVATE);
+  }
+
+  public PreferencesKeyValueStoreManager(Context context, String chiSp) {
+    mChipSp = chiSp;
+    preferences = context.getSharedPreferences(mChipSp, Context.MODE_PRIVATE);
   }
 
   @Override

@@ -78,8 +78,8 @@ public class ChipDeviceController {
   ICSRHandler mICSRhandler;
   public void getPhoneCsr(ControllerParams params, ICSRHandler icsrHandler) {
     Log.i(TAG, "getPhoneCsr deviceControllerPtr" + deviceControllerPtr);
-    getPhoneCSR(this.deviceControllerPtr, params);
     mICSRhandler = icsrHandler;
+    getPhoneCSR(this.deviceControllerPtr, params);
   }
 
   public interface ICSRHandler {
@@ -366,9 +366,9 @@ public class ChipDeviceController {
     if (mICSRhandler != null) {
       mICSRhandler.onGet(csr);
     }
-      String base64Cert = Base64.encodeToString(csr, Base64.NO_WRAP);
-      X509Certificate x509Certificate = getCertificateFromBase64Str(base64Cert);
-      Log.i(TAG, x509Certificate.toString());
+//      String base64Cert = Base64.encodeToString(csr, Base64.NO_WRAP);
+//      X509Certificate x509Certificate = getCertificateFromBase64Str(base64Cert);
+//      Log.i(TAG, x509Certificate.toString());
   }
 
   public void javaPrintCsr(String certCategory, byte[] cerBytes) {

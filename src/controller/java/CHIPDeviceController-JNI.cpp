@@ -102,7 +102,7 @@ jint JNI_OnLoad(JavaVM * jvm, void * reserved)
     CHIP_ERROR err = CHIP_NO_ERROR;
     JNIEnv * env;
 
-    ChipLogProgress(Controller, "tianhang JNI_OnLoad() called");
+    ChipLogProgress(Controller, "tianhang JNI_OnLoad() called 0.1");
 
     chip::Platform::MemoryInit();
 
