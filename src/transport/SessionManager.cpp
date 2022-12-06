@@ -268,8 +268,8 @@ CHIP_ERROR SessionManager::PrepareMessage(const SessionHandle & sessionHandle, P
         }
     }
 
-    auto * protocolName = Protocols::GetProtocolName(payloadHeader.GetProtocolID());
-    auto * msgTypeName  = Protocols::GetMessageTypeName(payloadHeader.GetProtocolID(), payloadHeader.GetMessageType());
+//    auto * protocolName = Protocols::GetProtocolName(payloadHeader.GetProtocolID());
+//    auto * msgTypeName  = Protocols::GetMessageTypeName(payloadHeader.GetProtocolID(), payloadHeader.GetMessageType());
 
     //
     // 32-bit value maximum = 10 chars + text preamble (6) + trailer (1) + null (1) + 2 buffer = 20
@@ -284,13 +284,13 @@ CHIP_ERROR SessionManager::PrepareMessage(const SessionHandle & sessionHandle, P
     //
     // Legend that can be used to decode this log line can be found in messaging/README.md
     //
-    ChipLogProgress(ExchangeManager,
-                    "<<< [E:" ChipLogFormatExchangeId " M:" ChipLogFormatMessageCounter "%s] (%s) Msg TX to %u:" ChipLogFormatX64
-                    " [%04X] --- Type %04X:%02X (%s:%s)",
-                    ChipLogValueExchangeIdFromSentHeader(payloadHeader), packetHeader.GetMessageCounter(), ackBuf,
-                    Transport::GetSessionTypeString(sessionHandle), fabricIndex, ChipLogValueX64(destination),
-                    static_cast<uint16_t>(compressedFabricId), payloadHeader.GetProtocolID().GetProtocolId(),
-                    payloadHeader.GetMessageType(), protocolName, msgTypeName);
+//    ChipLogProgress(ExchangeManager,
+//                    "<<< [E:" ChipLogFormatExchangeId " M:" ChipLogFormatMessageCounter "%s] (%s) Msg TX to %u:" ChipLogFormatX64
+//                    " [%04X] --- Type %04X:%02X (%s:%s)",
+//                    ChipLogValueExchangeIdFromSentHeader(payloadHeader), packetHeader.GetMessageCounter(), ackBuf,
+//                    Transport::GetSessionTypeString(sessionHandle), fabricIndex, ChipLogValueX64(destination),
+//                    static_cast<uint16_t>(compressedFabricId), payloadHeader.GetProtocolID().GetProtocolId(),
+//                    payloadHeader.GetMessageType(), protocolName, msgTypeName);
 #endif
 
     ReturnErrorOnFailure(packetHeader.EncodeBeforeData(message));

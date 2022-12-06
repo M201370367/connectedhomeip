@@ -20,6 +20,7 @@ package com.google.chip.chiptool.provisioning
 
 import android.bluetooth.BluetoothGatt
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +28,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import chip.devicecontroller.ChipDeviceController
+import chip.devicecontroller.ControllerParams
 import chip.devicecontroller.NetworkCredentials
+import chip.platform.PreferencesKeyValueStoreManager
 import com.google.chip.chiptool.ChipClient
 import com.google.chip.chiptool.GenericChipDeviceListener
 import com.google.chip.chiptool.R
@@ -35,6 +39,7 @@ import com.google.chip.chiptool.bluetooth.BluetoothManager
 import com.google.chip.chiptool.setuppayloadscanner.CHIPDeviceInfo
 import com.google.chip.chiptool.util.DeviceIdUtil
 import com.google.chip.chiptool.util.FragmentUtil
+import kotlinx.android.synthetic.main.single_fragment_container.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -51,6 +56,10 @@ class DeviceProvisioningFragment : Fragment() {
 
   private lateinit var scope: CoroutineScope
 
+  private var mPreferencesKeyValueStoreManager: PreferencesKeyValueStoreManager? = null
+
+  private var deviceController:ChipDeviceController? = null
+
   override fun onCreateView(
     inflater: LayoutInflater,
     container: ViewGroup?,
@@ -60,11 +69,46 @@ class DeviceProvisioningFragment : Fragment() {
     deviceInfo = checkNotNull(requireArguments().getParcelable(ARG_DEVICE_INFO))
     return inflater.inflate(R.layout.single_fragment_container, container, false).apply {
       if (savedInstanceState == null) {
-        if (deviceInfo.ipAddress != null) {
-          pairDeviceWithAddress()
-        } else {
-          startConnectingToDevice()
+        mPreferencesKeyValueStoreManager = PreferencesKeyValueStoreManager(requireContext())
+        Log.i(TAG, "ketExist: " + mPreferencesKeyValueStoreManager?.isIssueKeyExist + ", rootcaExist=" + mPreferencesKeyValueStoreManager?.isRCACExist + ", icacExist=" + mPreferencesKeyValueStoreManager?.isICACExist);
+
+        if (true) {
+          var rcac = "MIIBmjCCAUGgAwIBAgIGAYRR26mpMAoGCCqGSM49BAMCMCIxIDAeBgorBgEEAYKifAEEDBBDQUNBQ0FDQTAwMDAwMDAxMB4XDTIyMTEwNzExMzEwMVoXDTQyMTEwNzExMzEwMVowIjEgMB4GCisGAQQBgqJ8AQQMEENBQ0FDQUNBMDAwMDAwMDEwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASZERVkqyowUG80RKZ85TKGwNPoTPNNjR6ytJ3fWBNNjTprWHjVdczT02q8CkLh8wQbxq0Tk3a38uEk9SV98A5Xo2MwYTAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBBjAfBgNVHSMEGDAWgBQ1G9emyITHOPdk/Sjm12jwcxfqvTAdBgNVHQ4EFgQUNRvXpsiExzj3ZP0o5tdo8HMX6r0wCgYIKoZIzj0EAwIDRwAwRAIgdLWxV/gFD+lK5qsq+UEhX4xujfTm8Gd8meVI/ysjylYCIGjHRJ9SR55+gUqkPX683SBHsIj4kRv8VREmr8S4lEmy"
+          mPreferencesKeyValueStoreManager?.set(PreferencesKeyValueStoreManager.kOperationalCredentialsRootCertificateStorage, Base64.encodeToString(Base64.decode(rcac, Base64.NO_WRAP), Base64.NO_WRAP))
         }
+        if (true) {
+          var icac = "MIIBnDCCAUGgAwIBAgIGAYRR26nEMAoGCCqGSM49BAMCMCIxIDAeBgorBgEEAYKifAEEDBBDQUNBQ0FDQTAwMDAwMDAxMB4XDTIyMTEwNzExMzEwMVoXDTQyMTEwNzExMzEwMVowIjEgMB4GCisGAQQBgqJ8AQMMEENBQ0FDQUNBMDAwMDAwMDMwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASyNyzm9wZE7VHKxhutZ88pY19T3SjA8A+68JOugUj/90o23WKk6IwHGZkaWsgtTsfZoaURefqSqH/eEJqZRgRIo2MwYTAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBBjAfBgNVHSMEGDAWgBQ1G9emyITHOPdk/Sjm12jwcxfqvTAdBgNVHQ4EFgQUz3Sd1Ls4pQRE4RIoWYFI2tV6JekwCgYIKoZIzj0EAwIDSQAwRgIhAP6BN+u8SfiwnSfGL/fGKpUpO4rb14GDTziiAyzAFw4uAiEAu5BTjt2p30ZgL3reQGv7lmPyDj17PWadcqutnKdwOc4="
+          mPreferencesKeyValueStoreManager?.set(PreferencesKeyValueStoreManager.kOperationalCredentialsICACStorage, Base64.encodeToString(Base64.decode(icac, Base64.NO_WRAP), Base64.NO_WRAP))
+        }
+        initWhitoutCertBtn.setOnClickListener {
+          deviceController = ChipClient.getDeviceControllerWithoutInitCert(requireContext())
+        }
+
+        getCsrBtn.setOnClickListener {
+          deviceController?.getPhoneCsr(ControllerParams.newBuilder().setControllerVendorId(ChipClient.VENDOR_ID).build(), object : ChipDeviceController.ICSRHandler{
+            override fun onGet(csr: ByteArray?) {
+
+            }
+          })
+        }
+
+        initCertBtn.setOnClickListener {
+          deviceController?.initLocalPhoneCert(ControllerParams.newBuilder().setControllerVendorId(ChipClient.VENDOR_ID).build());
+        }
+
+
+        newControllerBtn.setOnClickListener {
+          deviceController = ChipClient.getDeviceController(requireContext())
+        }
+
+        pairDeviceBtn.setOnClickListener {
+          if (deviceInfo.ipAddress != null) {
+            pairDeviceWithAddress()
+          } else {
+            startConnectingToDevice()
+          }
+        }
+
       }
     }
   }
@@ -78,10 +122,9 @@ class DeviceProvisioningFragment : Fragment() {
     // IANA CHIP port
     val port = 5540
     val id = DeviceIdUtil.getNextAvailableId(requireContext())
-    val deviceController = ChipClient.getDeviceController(requireContext())
     DeviceIdUtil.setNextAvailableId(requireContext(), id + 1)
-    deviceController.setCompletionListener(ConnectionCallback())
-    deviceController.pairDeviceWithAddress(
+    deviceController?.setCompletionListener(ConnectionCallback())
+    deviceController?.pairDeviceWithAddress(
       id,
       deviceInfo.ipAddress,
       port,
@@ -97,7 +140,6 @@ class DeviceProvisioningFragment : Fragment() {
     }
 
     scope.launch {
-      val deviceController = ChipClient.getDeviceController(requireContext())
       val bluetoothManager = BluetoothManager()
 
       showMessage(
@@ -116,11 +158,11 @@ class DeviceProvisioningFragment : Fragment() {
       gatt = bluetoothManager.connect(requireContext(), device)
 
       showMessage(R.string.rendezvous_over_ble_pairing_text)
-      deviceController.setCompletionListener(ConnectionCallback())
+      deviceController?.setCompletionListener(ConnectionCallback())
 
       val deviceId = DeviceIdUtil.getNextAvailableId(requireContext())
       val connId = bluetoothManager.connectionId
-      deviceController.pairDevice(gatt, connId, deviceId, deviceInfo.setupPinCode, networkCredentials)
+      deviceController?.pairDevice(gatt, connId, deviceId, deviceInfo.setupPinCode, networkCredentials)
       DeviceIdUtil.setNextAvailableId(requireContext(), deviceId + 1)
     }
   }

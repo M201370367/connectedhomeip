@@ -32,7 +32,7 @@ namespace chip {
 using namespace chip::Crypto;
 
 namespace {
-
+constexpr const char kOperationalCredentialsIssuerKeypairStorage[]   = "AndroidDeviceControllerKey";
 // Tags for our operational keypair storage.
 constexpr TLV::Tag kOpKeyVersionTag = TLV::ContextTag(0);
 constexpr TLV::Tag kOpKeyDataTag    = TLV::ContextTag(1);
@@ -190,13 +190,18 @@ bool PersistentStorageOperationalKeystore::HasOpKeypairForFabric(FabricIndex fab
 CHIP_ERROR PersistentStorageOperationalKeystore::NewOpKeypairForFabric(FabricIndex fabricIndex,
                                                                        MutableByteSpan & outCertificateSigningRequest)
 {
+    ChipLogProgress(Controller, "PersistentStorageOperationalKeystore::NewOpKeypairForFabric mPendingFabricIndex=%d", mPendingFabricIndex);
+    ChipLogProgress(Controller, "fabricIndex=%d", fabricIndex);
+    ChipLogByteSpan(Controller, outCertificateSigningRequest);
     VerifyOrReturnError(mStorage != nullptr, CHIP_ERROR_INCORRECT_STATE);
     VerifyOrReturnError(IsValidFabricIndex(fabricIndex), CHIP_ERROR_INVALID_FABRIC_INDEX);
     // If a key is pending, we cannot generate for a different fabric index until we commit or revert.
+    ChipLogProgress(Controller, "PersistentStorageOperationalKeystore::NewOpKeypairForFabric 1");
     if ((mPendingFabricIndex != kUndefinedFabricIndex) && (fabricIndex != mPendingFabricIndex))
     {
         return CHIP_ERROR_INVALID_FABRIC_INDEX;
     }
+    ChipLogProgress(Controller, "PersistentStorageOperationalKeystore::NewOpKeypairForFabric 2");
     VerifyOrReturnError(outCertificateSigningRequest.size() >= Crypto::kMAX_CSR_Length, CHIP_ERROR_BUFFER_TOO_SMALL);
 
     // Replace previous pending keypair, if any was previously allocated
@@ -205,8 +210,19 @@ CHIP_ERROR PersistentStorageOperationalKeystore::NewOpKeypairForFabric(FabricInd
     mPendingKeypair = Platform::New<Crypto::P256Keypair>();
     VerifyOrReturnError(mPendingKeypair != nullptr, CHIP_ERROR_NO_MEMORY);
 
+    ChipLogProgress(Controller, "PersistentStorageOperationalKeystore::NewOpKeypairForFabric 3");
     mPendingKeypair->Initialize();
+
+    //tianhang start
+    Crypto::P256SerializedKeypair serializedKey;
+    mPendingKeypair->Serialize(serializedKey);
+    uint16_t keySize = static_cast<uint16_t>(sizeof(serializedKey));
+    ReturnErrorOnFailure(mStorage->SyncSetKeyValue(kOperationalCredentialsIssuerKeypairStorage, &serializedKey, keySize));
+    ChipLogProgress(Controller, "PersistentStorageOperationalKeystore save keypair ok");
+    //tianhang end
+
     size_t csrLength = outCertificateSigningRequest.size();
+    ChipLogProgress(Controller, "PersistentStorageOperationalKeystore::NewOpKeypairForFabric 4");
     CHIP_ERROR err   = mPendingKeypair->NewCertificateSigningRequest(outCertificateSigningRequest.data(), csrLength);
     if (err != CHIP_NO_ERROR)
     {

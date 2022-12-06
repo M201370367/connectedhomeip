@@ -48,6 +48,7 @@ class DLL_EXPORT AndroidOperationalCredentialsIssuer : public OperationalCredent
 public:
     virtual ~AndroidOperationalCredentialsIssuer() {}
 
+    void doJavaCertPrint(const char* bytes, MutableByteSpan & cert);
     CHIP_ERROR GenerateNOCChain(const ByteSpan & csrElements, const ByteSpan & csrNonce, const ByteSpan & attestationSignature,
                                 const ByteSpan & attestationChallenge, const ByteSpan & DAC, const ByteSpan & PAI,
                                 Callback::Callback<OnNOCChainGeneration> * onCompletion) override;
@@ -68,6 +69,7 @@ public:
 
     void SetFabricIdForNextNOCRequest(FabricId fabricId) override { mNextFabricId = fabricId; }
 
+    CHIP_ERROR getPhoneCertCSR(PersistentStorageDelegate & storage, jobject javaObjectRef);
     /**
      * @brief Initialize the issuer with the keypair in the storage.
      *        If the storage doesn't have one, it'll create one, and it to the storage.
@@ -79,6 +81,7 @@ public:
      * @return Returns a CHIP_ERROR on error, CHIP_NO_ERROR otherwise
      **/
     CHIP_ERROR Initialize(PersistentStorageDelegate & storage, AutoCommissioner * autoCommissioner, jobject javaObjectRef);
+    CHIP_ERROR doJavaPrintCert(const char * methodName, MutableByteSpan & rcac);
 
     void SetIssuerId(uint32_t id) { mIssuerId = id; }
 

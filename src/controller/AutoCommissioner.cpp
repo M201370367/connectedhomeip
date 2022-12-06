@@ -47,8 +47,8 @@ CHIP_ERROR AutoCommissioner::SetCommissioningParameters(const CommissioningParam
     mParams = params;
     if (params.GetFailsafeTimerSeconds().HasValue())
     {
-        ChipLogProgress(Controller, "Setting failsafe timer from parameters");
-        mParams.SetFailsafeTimerSeconds(params.GetFailsafeTimerSeconds().Value());
+        ChipLogProgress(Controller, "Setting failsafe timer from parameters: %u", params.GetFailsafeTimerSeconds().Value());
+        mParams.SetFailsafeTimerSeconds(600);
     }
 
     if (params.GetAdminSubject().HasValue())

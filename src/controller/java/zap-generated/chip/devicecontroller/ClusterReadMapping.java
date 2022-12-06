@@ -23,6 +23,7 @@ import chip.clusterinfo.CommandParameterInfo;
 import chip.clusterinfo.InteractionInfo;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ClusterReadMapping {
@@ -1310,8 +1311,17 @@ public class ClusterReadMapping {
         new InteractionInfo(
             (cluster, callback, commandArguments) -> {
               ((ChipClusters.ActionsCluster) cluster)
-                  .readEndpointListsAttribute(
-                      (ChipClusters.ActionsCluster.EndpointListsAttributeCallback) callback);
+                  .readEndpointListsAttribute(new ChipClusters.ActionsCluster.EndpointListsAttributeCallback() {
+                      @Override
+                      public void onSuccess(List<ChipStructs.ActionsClusterEndpointListStruct> valueList) {
+                          ((ChipClusters.ActionsCluster.EndpointListsAttributeCallback) callback).onSuccess(valueList);
+                      }
+
+                      @Override
+                      public void onError(Exception ex) {
+                          ((ChipClusters.ActionsCluster.EndpointListsAttributeCallback) callback).onError(ex);
+                      }
+                  });
             },
             () -> new ClusterInfoMapping.DelegatedActionsClusterEndpointListsAttributeCallback(),
             readActionsEndpointListsCommandParams);

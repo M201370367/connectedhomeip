@@ -29,6 +29,7 @@
 
 #include <ctype.h>
 #include <stdint.h>
+#include <lib/support/logging/CHIPLogging.h>
 
 namespace chip {
 
@@ -208,14 +209,21 @@ uint16_t Base64Decode(const char * in, uint16_t inLen, uint8_t * out, Base64Char
     while (inLen > 0 && isgraph(*in))
     {
         if (inLen == 1)
+        {
+            ChipLogProgress(Controller, "Base64Decode 1");
             goto fail;
+        }
+
 
         uint8_t a = charToValFunct(static_cast<uint8_t>(*in++));
         uint8_t b = charToValFunct(static_cast<uint8_t>(*in++));
         inLen     = static_cast<uint16_t>(inLen - 2);
 
         if (a == UINT8_MAX || b == UINT8_MAX)
+        {
+            ChipLogProgress(Controller, "Base64Decode 2");
             goto fail;
+        }
 
         *out++ = static_cast<uint8_t>((a << 2) | (b >> 4));
 
@@ -226,7 +234,10 @@ uint16_t Base64Decode(const char * in, uint16_t inLen, uint8_t * out, Base64Char
         inLen--;
 
         if (c == UINT8_MAX)
+        {
+            ChipLogProgress(Controller, "Base64Decode 3");
             goto fail;
+        }
 
         *out++ = static_cast<uint8_t>((b << 4) | (c >> 2));
 
@@ -237,7 +248,10 @@ uint16_t Base64Decode(const char * in, uint16_t inLen, uint8_t * out, Base64Char
         inLen--;
 
         if (d == UINT8_MAX)
+        {
+            ChipLogProgress(Controller, "Base64Decode 4");
             goto fail;
+        }
 
         *out++ = static_cast<uint8_t>((c << 6) | d);
     }

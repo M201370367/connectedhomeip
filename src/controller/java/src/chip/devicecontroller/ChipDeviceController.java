@@ -18,11 +18,20 @@
 package chip.devicecontroller;
 
 import android.bluetooth.BluetoothGatt;
+import android.util.Base64;
 import android.util.Log;
 import androidx.annotation.Nullable;
 import chip.devicecontroller.GetConnectedDeviceCallbackJni.GetConnectedDeviceCallback;
 import chip.devicecontroller.model.ChipAttributePath;
 import chip.devicecontroller.model.ChipEventPath;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +63,31 @@ public class ChipDeviceController {
       throw new NullPointerException("params cannot be null");
     }
     deviceControllerPtr = newDeviceController(params);
+  }
+
+  public ChipDeviceController() {
+  }
+
+  public void initChipDeviceControllerWithoutInitCert(ControllerParams params) {
+    if (params == null) {
+      throw new NullPointerException("params cannot be null");
+    }
+    this.deviceControllerPtr = newDeviceControllerWithoutInitCert(params);
+  }
+
+  ICSRHandler mICSRhandler;
+  public void getPhoneCsr(ControllerParams params, ICSRHandler icsrHandler) {
+    Log.i(TAG, "getPhoneCsr deviceControllerPtr" + deviceControllerPtr);
+    getPhoneCSR(this.deviceControllerPtr, params);
+    mICSRhandler = icsrHandler;
+  }
+
+  public interface ICSRHandler {
+    void onGet(byte[] csr);
+  }
+
+  public void initLocalPhoneCert(ControllerParams params) {
+    initLocalPhoneCert(this.deviceControllerPtr, params);
   }
 
   public void setCompletionListener(CompletionListener listener) {
@@ -281,6 +315,7 @@ public class ChipDeviceController {
   }
 
   public void onCommissioningComplete(long nodeId, int errorCode) {
+    Log.i(TAG, "onCommissioningComplete1");
     if (completionListener != null) {
       completionListener.onCommissioningComplete(nodeId, errorCode);
     }
@@ -320,9 +355,43 @@ public class ChipDeviceController {
   }
 
   public void onOpCSRGenerationComplete(byte[] csr) {
+    Log.i(TAG, "onOpCSRGenerationComplete base64 csr:" + Base64.encodeToString(csr, Base64.NO_WRAP));
     if (completionListener != null) {
       completionListener.onOpCSRGenerationComplete(csr);
     }
+  }
+
+    public void onPhoneCSRGetComplete(byte[] csr) {
+    Log.i(TAG, "onPhoneCSRGetComplete base64 csr:" + Base64.encodeToString(csr, Base64.NO_WRAP));
+    if (mICSRhandler != null) {
+      mICSRhandler.onGet(csr);
+    }
+      String base64Cert = Base64.encodeToString(csr, Base64.NO_WRAP);
+      X509Certificate x509Certificate = getCertificateFromBase64Str(base64Cert);
+      Log.i(TAG, x509Certificate.toString());
+  }
+
+  public void javaPrintCsr(String certCategory, byte[] cerBytes) {
+    String base64Cert = Base64.encodeToString(cerBytes, Base64.NO_WRAP);
+    X509Certificate x509Certificate = getCertificateFromBase64Str(base64Cert);
+    Log.i(TAG, "java print " + certCategory + ": " + base64Cert);
+    Log.i(TAG, x509Certificate.toString());
+  }
+
+  public static X509Certificate getCertificateFromBase64Str(String base64Cert) {
+    try {
+      ByteArrayInputStream bIn = new ByteArrayInputStream(Base64.decode(base64Cert, Base64.NO_WRAP));
+      CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+      X509Certificate x509Certificate = (X509Certificate) certificateFactory.generateCertificate(bIn);
+      bIn.close();
+      return x509Certificate;
+    } catch (CertificateException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    return null;
   }
 
   public void onPairingDeleted(int errorCode) {
@@ -611,6 +680,12 @@ public class ChipDeviceController {
       boolean isFabricFiltered);
 
   private native long newDeviceController(ControllerParams params);
+
+  private native long newDeviceControllerWithoutInitCert(ControllerParams params);
+
+  private native long getPhoneCSR(long deviceControllerPtr, ControllerParams params);
+
+  private native long initLocalPhoneCert(long deviceControllerPtr, ControllerParams params);
 
   private native void pairDevice(
       long deviceControllerPtr,

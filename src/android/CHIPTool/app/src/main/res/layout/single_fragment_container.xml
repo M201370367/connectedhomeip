@@ -1,6 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    android:id="@+id/fragment_container"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+<LinearLayout
+        android:id="@+id/fragment_container"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+        <Button
+                android:text="initWhitoutCert"
+                android:textAllCaps="false"
+                android:layout_margin="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/initWhitoutCertBtn"/>
+        <Button
+                android:text="getCsr"
+                android:textAllCaps="false"
+                android:layout_margin="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/getCsrBtn"/>
+        <Button
+                android:text="initCert"
+                android:textAllCaps="false"
+                android:layout_margin="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/initCertBtn"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+        <Button
+                android:text="newController"
+                android:textAllCaps="false"
+                android:layout_margin="10dp"
+                android:layout_marginTop="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/newControllerBtn"/>
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+        <Button
+                android:text="pair device"
+                android:textAllCaps="false"
+                android:layout_margin="10dp"
+                android:layout_marginTop="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:id="@+id/pairDeviceBtn"/>
+    </LinearLayout>
+</LinearLayout>

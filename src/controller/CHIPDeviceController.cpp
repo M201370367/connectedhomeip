@@ -1270,6 +1270,7 @@ CHIP_ERROR DeviceCommissioner::SendOperationalCertificate(DeviceProxy * device, 
                                                           const NodeId adminSubject, Optional<System::Clock::Timeout> timeout)
 {
     MATTER_TRACE_EVENT_SCOPE("SendOperationalCertificate", "DeviceCommissioner");
+    ChipLogProgress(Controller, "SendOperationalCertificate start");
 
     VerifyOrReturnError(device != nullptr, CHIP_ERROR_INVALID_ARGUMENT);
 
@@ -1279,6 +1280,11 @@ CHIP_ERROR DeviceCommissioner::SendOperationalCertificate(DeviceProxy * device, 
     request.IPKValue         = ipk;
     request.caseAdminSubject = adminSubject;
     request.adminVendorId    = mVendorId;
+
+    ChipLogProgress(Controller, "SendOperationalCertificate icac:");
+    ChipLogByteSpan(Controller, icaCertBuf.Value());
+    ChipLogProgress(Controller, "SendOperationalCertificate noc:");
+    ChipLogByteSpan(Controller, nocCertBuf);
 
     ReturnErrorOnFailure(SendCommand<OperationalCredentialsCluster>(device, request, OnOperationalCertificateAddResponse,
                                                                     OnAddNOCFailureResponse, timeout));

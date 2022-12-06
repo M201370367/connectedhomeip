@@ -406,6 +406,7 @@ CHIP_ERROR EFR32OpaqueP256Keypair::Deserialize(P256SerializedKeypair & input)
 
 CHIP_ERROR EFR32OpaqueP256Keypair::NewCertificateSigningRequest(uint8_t * out_csr, size_t & csr_length) const
 {
+    ChipLogProgress(Controller, "efr32 NewCertificateSigningRequest enter");
     MutableByteSpan csr(out_csr, csr_length);
     CHIP_ERROR err = GenerateCertificateSigningRequest(this, csr);
     csr_length     = (CHIP_NO_ERROR == err) ? csr.size() : 0;
