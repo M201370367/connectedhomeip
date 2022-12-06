@@ -28,16 +28,18 @@ public class PreferencesKeyValueStoreManager implements KeyValueStoreManager {
   private SharedPreferences preferences;
 
   private final static String  kOperationalCredentialsIssuerKeypairStorage   = "AndroidDeviceControllerKey";
-  public final static String  kOperationalCredentialsRootCertificateStorage = "AndroidCARootCert1";
-  public final static String  kOperationalCredentialsICACStorage = "AndroidICAC1";
+  public String  kOperationalCredentialsRootCertificateStorage = "AndroidCARootCert";
+  public String  kOperationalCredentialsICACStorage = "AndroidICAC";
 
   @Deprecated
   public PreferencesKeyValueStoreManager(Context context) {
     preferences = context.getSharedPreferences(mChipSp, Context.MODE_PRIVATE);
   }
 
-  public PreferencesKeyValueStoreManager(Context context, String chiSp) {
-    mChipSp = chiSp;
+  public PreferencesKeyValueStoreManager(Context context, String spSuffix, String fabric) {
+    mChipSp = mChipSp + spSuffix;
+    kOperationalCredentialsRootCertificateStorage = kOperationalCredentialsRootCertificateStorage + fabric;
+    kOperationalCredentialsICACStorage = kOperationalCredentialsICACStorage + fabric;
     preferences = context.getSharedPreferences(mChipSp, Context.MODE_PRIVATE);
   }
 
