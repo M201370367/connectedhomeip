@@ -361,6 +361,14 @@ public class ChipDeviceController {
     }
   }
 
+  public void onDeviceNoCGenerationComplete(byte[] deviceNoc, byte[] ipk) {
+    Log.i(TAG, "onDeviceNoCGenerationComplete base64 device noc:" + Base64.encodeToString(deviceNoc, Base64.NO_WRAP));
+    Log.i(TAG, "onDeviceNoCGenerationComplete base64 ipk:" + Base64.encodeToString(ipk, Base64.NO_WRAP));
+    if (completionListener != null) {
+      completionListener.onDeviceNoCGenerationComplete(deviceNoc, ipk);
+    }
+  }
+
     public void onPhoneCSRGetComplete(byte[] csr) {
     Log.i(TAG, "onPhoneCSRGetComplete base64 csr:" + Base64.encodeToString(csr, Base64.NO_WRAP));
     if (mICSRhandler != null) {
@@ -874,5 +882,7 @@ public class ChipDeviceController {
 
     /** Notifies the Commissioner when the OpCSR for the Comissionee is generated. */
     void onOpCSRGenerationComplete(byte[] csr);
+
+    void onDeviceNoCGenerationComplete(byte[] deviceNoc, byte[] ipk);
   }
 }

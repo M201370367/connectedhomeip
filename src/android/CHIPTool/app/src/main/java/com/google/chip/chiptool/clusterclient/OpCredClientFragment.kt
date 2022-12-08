@@ -62,6 +62,10 @@ class OpCredClientFragment : Fragment() {
     override fun onError(error: Throwable?) {
       Log.d(TAG, "onError: $error")
     }
+
+    override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
+      TODO("Not yet implemented")
+    }
   }
 
   private suspend fun sendReadOpCredSupportedFabricAttrClick() {

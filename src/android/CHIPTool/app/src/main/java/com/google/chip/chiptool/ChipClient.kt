@@ -30,6 +30,7 @@ import chip.platform.NsdManagerServiceBrowser
 import chip.platform.NsdManagerServiceResolver
 import chip.platform.PreferencesConfigurationManager
 import chip.platform.PreferencesKeyValueStoreManager
+import org.w3c.dom.Node
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -41,12 +42,14 @@ object ChipClient {
   private lateinit var androidPlatform: AndroidChipPlatform
   /* 0xFFF4 is a test vendor ID, replace with your assigned company ID */
   public const val VENDOR_ID = 0xFFF4
+  public const val ISSUERNodeId = 1020304050L
 
   fun getDeviceController(context: Context): ChipDeviceController {
     getAndroidChipPlatform(context)
 
     if (!this::chipDeviceController.isInitialized) {
-      chipDeviceController = ChipDeviceController(ControllerParams.newBuilder().setControllerVendorId(VENDOR_ID).build())
+      chipDeviceController = ChipDeviceController(ControllerParams.newBuilder().setControllerVendorId(VENDOR_ID)
+        .setIssuerNodeId(ISSUERNodeId).build())
     }
     return chipDeviceController
   }
@@ -65,7 +68,7 @@ object ChipClient {
     if (!this::androidPlatform.isInitialized && context != null) {
       //force ChipDeviceController load jni
       ChipDeviceController.loadJni()
-      androidPlatform = AndroidChipPlatform(AndroidBleManager(), PreferencesKeyValueStoreManager(context), PreferencesConfigurationManager(context), NsdManagerServiceResolver(context), NsdManagerServiceBrowser(context), ChipMdnsCallbackImpl(), DiagnosticDataProviderImpl(context))
+      androidPlatform = AndroidChipPlatform(AndroidBleManager(), PreferencesKeyValueStoreManager(context, "", "1"), PreferencesConfigurationManager(context), NsdManagerServiceResolver(context), NsdManagerServiceBrowser(context), ChipMdnsCallbackImpl(), DiagnosticDataProviderImpl(context))
     }
     return androidPlatform
   }

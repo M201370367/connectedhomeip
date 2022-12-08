@@ -229,8 +229,8 @@ CHIP_ERROR AndroidOperationalCredentialsIssuer::GenerateNOCChainAfterValidation(
     ChipDN icac_dn;
     uint16_t icacBufLen = static_cast<uint16_t>(std::min(icac.size(), static_cast<size_t>(UINT16_MAX)));
     err      = CHIP_NO_ERROR;
-    ChipLogProgress(Controller, "sync befor icac:");
-    ChipLogByteSpan(Controller, icac);
+//    ChipLogProgress(Controller, "sync befor icac:");
+//    ChipLogByteSpan(Controller, icac);
     PERSISTENT_KEY_OP(fabricId, kOperationalCredentialsICACStorage, key,
                       err = mStorage->SyncGetKeyValue(key, icac.data(), icacBufLen));
     ChipLogProgress(Controller, "Read ICAC result: %d", err.AsInteger());
@@ -449,10 +449,10 @@ CHIP_ERROR AndroidOperationalCredentialsIssuer::LocalGenerateNOCChain(const Byte
                                                                       Callback::Callback<OnNOCChainGeneration> * onCompletion)
 {
     ChipLogProgress(chipTool, "LocalGenerateNOCChain enter");
-    jmethodID method;
+    jmethodID onDeviceNoCGenerationComplete;
     CHIP_ERROR err = CHIP_NO_ERROR;
     err            = JniReferences::GetInstance().FindMethod(JniReferences::GetInstance().GetEnvForCurrentThread(), mJavaObjectRef,
-                                                  "onOpCSRGenerationComplete", "([B)V", &method);
+                                                  "onDeviceNoCGenerationComplete", "([B[B)V", &onDeviceNoCGenerationComplete);
     if (err != CHIP_NO_ERROR)
     {
         ChipLogError(Controller, "Error invoking onOpCSRGenerationComplete: %" CHIP_ERROR_FORMAT, err.Format());
@@ -528,11 +528,16 @@ CHIP_ERROR AndroidOperationalCredentialsIssuer::LocalGenerateNOCChain(const Byte
     onCompletion->mCall(onCompletion->mContext, CHIP_NO_ERROR, nocSpan, icacSpan, rcacSpan, MakeOptional(ipkSpan),
                         Optional<NodeId>());
 
-    jbyteArray javaCsr;
+    jbyteArray javaNoc;
     JniReferences::GetInstance().GetEnvForCurrentThread()->ExceptionClear();
-    JniReferences::GetInstance().N2J_ByteArray(JniReferences::GetInstance().GetEnvForCurrentThread(), csrElements.data(),
-                                               csrElements.size(), javaCsr);
-    JniReferences::GetInstance().GetEnvForCurrentThread()->CallVoidMethod(mJavaObjectRef, method, javaCsr);
+    JniReferences::GetInstance().N2J_ByteArray(JniReferences::GetInstance().GetEnvForCurrentThread(), nocSpan.data(),
+                                               nocSpan.size(), javaNoc);
+    jbyteArray javaIPK;
+    JniReferences::GetInstance().GetEnvForCurrentThread()->ExceptionClear();
+    JniReferences::GetInstance().N2J_ByteArray(JniReferences::GetInstance().GetEnvForCurrentThread(), defaultIpkSpan.data(),
+                                               defaultIpkSpan.size(), javaIPK);
+
+    JniReferences::GetInstance().GetEnvForCurrentThread()->CallVoidMethod(mJavaObjectRef, onDeviceNoCGenerationComplete, javaNoc, javaIPK);
     return CHIP_NO_ERROR;
 }
 

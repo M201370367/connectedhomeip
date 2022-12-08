@@ -46,4 +46,8 @@ open class GenericChipDeviceListener : ChipDeviceController.CompletionListener {
   override fun onOpCSRGenerationComplete(csr: ByteArray) {
     // No op
   }
+
+  override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
+    TODO("Not yet implemented")
+  }
 }

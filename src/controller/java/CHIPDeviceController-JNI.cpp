@@ -262,6 +262,10 @@ JNI_METHOD(jlong, newDeviceController)(JNIEnv * env, jobject self, jobject contr
     err = chip::JniReferences::GetInstance().FindMethod(env, controllerParams, "getFabricId", "()J", &getFabricId);
     SuccessOrExit(err);
 
+    jmethodID getIssuerNodeId;
+    err = chip::JniReferences::GetInstance().FindMethod(env, controllerParams, "getIssuerNodeId", "()J", &getIssuerNodeId);
+    SuccessOrExit(err);
+
     jmethodID getUdpListenPort;
     err = chip::JniReferences::GetInstance().FindMethod(env, controllerParams, "getUdpListenPort", "()I", &getUdpListenPort);
     SuccessOrExit(err);
@@ -319,6 +323,7 @@ JNI_METHOD(jlong, newDeviceController)(JNIEnv * env, jobject self, jobject contr
 
     {
         uint64_t fabricId                  = env->CallLongMethod(controllerParams, getFabricId);
+        uint64_t issuerNodeId              = env->CallLongMethod(controllerParams, getIssuerNodeId);
         uint16_t listenPort                = env->CallIntMethod(controllerParams, getUdpListenPort);
         uint16_t controllerVendorId        = env->CallIntMethod(controllerParams, getControllerVendorId);
         jobject keypairDelegate            = env->CallObjectMethod(controllerParams, getKeypairDelegate);
@@ -338,7 +343,7 @@ JNI_METHOD(jlong, newDeviceController)(JNIEnv * env, jobject self, jobject contr
         std::unique_ptr<chip::Controller::AndroidOperationalCredentialsIssuer> opCredsIssuer(
             new chip::Controller::AndroidOperationalCredentialsIssuer());
         wrapper = AndroidDeviceControllerWrapper::AllocateNew(
-            sJVM, self, kLocalDeviceId, fabricId, cats, &DeviceLayer::SystemLayer(),
+            sJVM, self, issuerNodeId, fabricId, cats, &DeviceLayer::SystemLayer(),
             DeviceLayer::TCPEndPointManager(), DeviceLayer::UDPEndPointManager(), std::move(opCredsIssuer), keypairDelegate,
             rootCertificate, intermediateCertificate, operationalCertificate, ipk, listenPort, controllerVendorId,
             failsafeTimerSeconds, attemptNetworkScanWiFi, attemptNetworkScanThread, skipCommissioningComplete, &err);
@@ -349,6 +354,7 @@ JNI_METHOD(jlong, newDeviceController)(JNIEnv * env, jobject self, jobject contr
             // if there is a valid adminSubject in the ControllerParams, then remember it
             CommissioningParameters commissioningParams = wrapper->GetCommissioningParameters();
             commissioningParams.SetAdminSubject(adminSubject);
+            ChipLogProgress(Controller, "JNI SetAdminSubject: %llu", adminSubject);
             err = wrapper->UpdateCommissioningParameters(commissioningParams);
             if (err != CHIP_NO_ERROR)
             {
@@ -398,6 +404,10 @@ JNI_METHOD(jlong, newDeviceControllerWithoutInitCert)(JNIEnv * env, jobject self
     err = chip::JniReferences::GetInstance().FindMethod(env, controllerParams, "getFabricId", "()J", &getFabricId);
     SuccessOrExit(err);
 
+    jmethodID getIssuerNodeId;
+    err = chip::JniReferences::GetInstance().FindMethod(env, controllerParams, "getIssuerNodeId", "()J", &getIssuerNodeId);
+    SuccessOrExit(err);
+
     jmethodID getUdpListenPort;
     err = chip::JniReferences::GetInstance().FindMethod(env, controllerParams, "getUdpListenPort", "()I", &getUdpListenPort);
     SuccessOrExit(err);
@@ -455,6 +465,7 @@ JNI_METHOD(jlong, newDeviceControllerWithoutInitCert)(JNIEnv * env, jobject self
 
     {
         uint64_t fabricId                  = env->CallLongMethod(controllerParams, getFabricId);
+        uint64_t issuerNodeId              = env->CallLongMethod(controllerParams, getIssuerNodeId);
         uint16_t listenPort                = env->CallIntMethod(controllerParams, getUdpListenPort);
         uint16_t controllerVendorId        = env->CallIntMethod(controllerParams, getControllerVendorId);
         jobject keypairDelegate            = env->CallObjectMethod(controllerParams, getKeypairDelegate);
@@ -474,7 +485,7 @@ JNI_METHOD(jlong, newDeviceControllerWithoutInitCert)(JNIEnv * env, jobject self
         std::unique_ptr<chip::Controller::AndroidOperationalCredentialsIssuer> opCredsIssuer(
             new chip::Controller::AndroidOperationalCredentialsIssuer());
         wrapper = AndroidDeviceControllerWrapper::FirstAllocateNew(
-            sJVM, self, kLocalDeviceId, fabricId, cats, &DeviceLayer::SystemLayer(),
+            sJVM, self, issuerNodeId, fabricId, cats, &DeviceLayer::SystemLayer(),
             DeviceLayer::TCPEndPointManager(), DeviceLayer::UDPEndPointManager(), std::move(opCredsIssuer), keypairDelegate,
             rootCertificate, intermediateCertificate, operationalCertificate, ipk, listenPort, controllerVendorId,
             failsafeTimerSeconds, attemptNetworkScanWiFi, attemptNetworkScanThread, skipCommissioningComplete, &err);
@@ -548,6 +559,9 @@ JNI_METHOD(void, initLocalPhoneCert) (JNIEnv * env, jobject self, jlong handle, 
     jmethodID getFabricId;
     CHIP_ERROR  err = chip::JniReferences::GetInstance().FindMethod(env, controllerParams, "getFabricId", "()J", &getFabricId);
 
+    jmethodID getIssuerNodeId;
+    err = chip::JniReferences::GetInstance().FindMethod(env, controllerParams, "getIssuerNodeId", "()J", &getIssuerNodeId);
+
     jmethodID getUdpListenPort;
     err = chip::JniReferences::GetInstance().FindMethod(env, controllerParams, "getUdpListenPort", "()I", &getUdpListenPort);
 
@@ -589,6 +603,7 @@ JNI_METHOD(void, initLocalPhoneCert) (JNIEnv * env, jobject self, jlong handle, 
 
     {
         uint64_t fabricId                  = env->CallLongMethod(controllerParams, getFabricId);
+        uint64_t issuerNodeId              = env->CallLongMethod(controllerParams, getIssuerNodeId);
         uint16_t listenPort                = env->CallIntMethod(controllerParams, getUdpListenPort);
         uint16_t controllerVendorId        = env->CallIntMethod(controllerParams, getControllerVendorId);
         jobject keypairDelegate            = env->CallObjectMethod(controllerParams, getKeypairDelegate);
@@ -601,7 +616,10 @@ JNI_METHOD(void, initLocalPhoneCert) (JNIEnv * env, jobject self, jlong handle, 
         bool attemptNetworkScanThread      = env->CallBooleanMethod(controllerParams, getAttemptNetworkScanThread);
         bool skipCommissioningComplete     = env->CallBooleanMethod(controllerParams, getSkipCommissioningComplete);
 
-        wrapper->initLocalPhoneCert(kLocalDeviceId, fabricId, chip::kUndefinedCATs, &DeviceLayer::SystemLayer(),
+        CATValues cats;
+        cats.values[0] = static_cast<chip::CASEAuthTag>(AndroidDeviceControllerWrapper::kMjAppCASEAuthTag);
+        cats.values[1] = static_cast<chip::CASEAuthTag>(AndroidDeviceControllerWrapper::kMjGateWayCASEAuthTag);
+        wrapper->initLocalPhoneCert(issuerNodeId, fabricId, cats, &DeviceLayer::SystemLayer(),
             DeviceLayer::TCPEndPointManager(), DeviceLayer::UDPEndPointManager(), keypairDelegate,
             rootCertificate, intermediateCertificate, operationalCertificate, ipk, listenPort, controllerVendorId,
             failsafeTimerSeconds, attemptNetworkScanWiFi, attemptNetworkScanThread, skipCommissioningComplete, &err);

@@ -524,12 +524,12 @@ CHIP_ERROR AndroidDeviceControllerWrapper::initLocalPhoneCert(chip::NodeId nodeI
         setupParams.operationalKeypair                   = &ephemeralKey;
         setupParams.hasExternallyOwnedOperationalKeypair = false;
 
-        ChipLogProgress(Controller, "phone tianhang Before generate rcac:");
-        ChipLogByteSpan(Controller, rcacSpan);
-        ChipLogProgress(Controller, "Before generate icac:");
-        ChipLogByteSpan(Controller, icacSpan);
-        ChipLogProgress(Controller, "Before generate noc:");
-        ChipLogByteSpan(Controller, nocSpan);
+//        ChipLogProgress(Controller, "phone tianhang Before generate rcac:");
+//        ChipLogByteSpan(Controller, rcacSpan);
+//        ChipLogProgress(Controller, "Before generate icac:");
+//        ChipLogByteSpan(Controller, icacSpan);
+//        ChipLogProgress(Controller, "Before generate noc:");
+//        ChipLogByteSpan(Controller, nocSpan);
         *errInfoOnFailure = mOpCredsIssuer->GenerateNOCChainAfterValidation(nodeId, fabricId, cats, ephemeralKey.Pubkey(), rcacSpan,
                                                                            icacSpan, nocSpan);
 

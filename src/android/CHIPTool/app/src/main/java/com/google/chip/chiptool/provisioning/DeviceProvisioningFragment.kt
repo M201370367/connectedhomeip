@@ -69,16 +69,16 @@ class DeviceProvisioningFragment : Fragment() {
     deviceInfo = checkNotNull(requireArguments().getParcelable(ARG_DEVICE_INFO))
     return inflater.inflate(R.layout.single_fragment_container, container, false).apply {
       if (savedInstanceState == null) {
-        mPreferencesKeyValueStoreManager = PreferencesKeyValueStoreManager(requireContext())
+        mPreferencesKeyValueStoreManager = PreferencesKeyValueStoreManager(requireContext(), "", "1")
         Log.i(TAG, "ketExist: " + mPreferencesKeyValueStoreManager?.isIssueKeyExist + ", rootcaExist=" + mPreferencesKeyValueStoreManager?.isRCACExist + ", icacExist=" + mPreferencesKeyValueStoreManager?.isICACExist);
 
         if (true) {
           var rcac = "MIIBmjCCAUGgAwIBAgIGAYRR26mpMAoGCCqGSM49BAMCMCIxIDAeBgorBgEEAYKifAEEDBBDQUNBQ0FDQTAwMDAwMDAxMB4XDTIyMTEwNzExMzEwMVoXDTQyMTEwNzExMzEwMVowIjEgMB4GCisGAQQBgqJ8AQQMEENBQ0FDQUNBMDAwMDAwMDEwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASZERVkqyowUG80RKZ85TKGwNPoTPNNjR6ytJ3fWBNNjTprWHjVdczT02q8CkLh8wQbxq0Tk3a38uEk9SV98A5Xo2MwYTAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBBjAfBgNVHSMEGDAWgBQ1G9emyITHOPdk/Sjm12jwcxfqvTAdBgNVHQ4EFgQUNRvXpsiExzj3ZP0o5tdo8HMX6r0wCgYIKoZIzj0EAwIDRwAwRAIgdLWxV/gFD+lK5qsq+UEhX4xujfTm8Gd8meVI/ysjylYCIGjHRJ9SR55+gUqkPX683SBHsIj4kRv8VREmr8S4lEmy"
-          mPreferencesKeyValueStoreManager?.set(PreferencesKeyValueStoreManager.kOperationalCredentialsRootCertificateStorage, Base64.encodeToString(Base64.decode(rcac, Base64.NO_WRAP), Base64.NO_WRAP))
+          mPreferencesKeyValueStoreManager?.set(mPreferencesKeyValueStoreManager?.kOperationalCredentialsRootCertificateStorage, Base64.encodeToString(Base64.decode(rcac, Base64.NO_WRAP), Base64.NO_WRAP))
         }
         if (true) {
           var icac = "MIIBnDCCAUGgAwIBAgIGAYRR26nEMAoGCCqGSM49BAMCMCIxIDAeBgorBgEEAYKifAEEDBBDQUNBQ0FDQTAwMDAwMDAxMB4XDTIyMTEwNzExMzEwMVoXDTQyMTEwNzExMzEwMVowIjEgMB4GCisGAQQBgqJ8AQMMEENBQ0FDQUNBMDAwMDAwMDMwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASyNyzm9wZE7VHKxhutZ88pY19T3SjA8A+68JOugUj/90o23WKk6IwHGZkaWsgtTsfZoaURefqSqH/eEJqZRgRIo2MwYTAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBBjAfBgNVHSMEGDAWgBQ1G9emyITHOPdk/Sjm12jwcxfqvTAdBgNVHQ4EFgQUz3Sd1Ls4pQRE4RIoWYFI2tV6JekwCgYIKoZIzj0EAwIDSQAwRgIhAP6BN+u8SfiwnSfGL/fGKpUpO4rb14GDTziiAyzAFw4uAiEAu5BTjt2p30ZgL3reQGv7lmPyDj17PWadcqutnKdwOc4="
-          mPreferencesKeyValueStoreManager?.set(PreferencesKeyValueStoreManager.kOperationalCredentialsICACStorage, Base64.encodeToString(Base64.decode(icac, Base64.NO_WRAP), Base64.NO_WRAP))
+          mPreferencesKeyValueStoreManager?.set(mPreferencesKeyValueStoreManager?.kOperationalCredentialsICACStorage, Base64.encodeToString(Base64.decode(icac, Base64.NO_WRAP), Base64.NO_WRAP))
         }
         initWhitoutCertBtn.setOnClickListener {
           deviceController = ChipClient.getDeviceControllerWithoutInitCert(requireContext())
@@ -205,6 +205,10 @@ class DeviceProvisioningFragment : Fragment() {
 
     override fun onOpCSRGenerationComplete(csr: ByteArray) {
       Log.d(TAG, String(csr))
+    }
+
+    override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
+
     }
 
     override fun onPairingDeleted(code: Int) {

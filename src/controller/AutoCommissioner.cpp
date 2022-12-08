@@ -53,7 +53,7 @@ CHIP_ERROR AutoCommissioner::SetCommissioningParameters(const CommissioningParam
 
     if (params.GetAdminSubject().HasValue())
     {
-        ChipLogProgress(Controller, "Setting adminSubject from parameters");
+        ChipLogProgress(Controller, "Setting adminSubject from parameters: %llu", params.GetAdminSubject().Value());
         mParams.SetAdminSubject(params.GetAdminSubject().Value());
     }
 
