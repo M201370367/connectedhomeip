@@ -264,12 +264,12 @@ AndroidDeviceControllerWrapper * AndroidDeviceControllerWrapper::AllocateNew(
         setupParams.operationalKeypair                   = &ephemeralKey;
         setupParams.hasExternallyOwnedOperationalKeypair = false;
 
-        ChipLogProgress(Controller, "tianhang Before generate rcac:");
-        ChipLogByteSpan(Controller, rcacSpan);
-        ChipLogProgress(Controller, "Before generate icac:");
-        ChipLogByteSpan(Controller, icacSpan);
-        ChipLogProgress(Controller, "Before generate noc:");
-        ChipLogByteSpan(Controller, nocSpan);
+//        ChipLogProgress(Controller, "tianhang Before generate rcac:");
+//        ChipLogByteSpan(Controller, rcacSpan);
+//        ChipLogProgress(Controller, "Before generate icac:");
+//        ChipLogByteSpan(Controller, icacSpan);
+//        ChipLogProgress(Controller, "Before generate noc:");
+//        ChipLogByteSpan(Controller, nocSpan);
         *errInfoOnFailure = opCredsIssuer->GenerateNOCChainAfterValidation(nodeId, fabricId, cats, ephemeralKey.Pubkey(), rcacSpan,
                                                                            icacSpan, nocSpan);
 

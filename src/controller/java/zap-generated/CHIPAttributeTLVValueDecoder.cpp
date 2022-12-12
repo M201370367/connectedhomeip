@@ -1371,9 +1371,9 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                 auto & entry_0 = iter_value_0.GetValue();
                 jobject newElement_0;
                 jobject newElement_0_type;
-                std::string newElement_0_typeClassName     = "java/lang/Long";
-                std::string newElement_0_typeCtorSignature = "(J)V";
-                chip::JniReferences::GetInstance().CreateBoxedObject<uint32_t>(
+                std::string newElement_0_typeClassName     = "java/lang/Integer";
+                std::string newElement_0_typeCtorSignature = "(I)V";
+                chip::JniReferences::GetInstance().CreateBoxedObject<uint16_t>(
                     newElement_0_typeClassName.c_str(), newElement_0_typeCtorSignature.c_str(), entry_0.type, newElement_0_type);
                 jobject newElement_0_revision;
                 std::string newElement_0_revisionClassName     = "java/lang/Integer";
@@ -1391,7 +1391,7 @@ jobject DecodeAttributeValue(const app::ConcreteAttributePath & aPath, TLV::TLVR
                     return nullptr;
                 }
                 jmethodID deviceTypeStructStructCtor_1 =
-                    env->GetMethodID(deviceTypeStructStructClass_1, "<init>", "(Ljava/lang/Long;Ljava/lang/Integer;)V");
+                    env->GetMethodID(deviceTypeStructStructClass_1, "<init>", "(Ljava/lang/Integer;Ljava/lang/Integer;)V");
                 if (deviceTypeStructStructCtor_1 == nullptr)
                 {
                     ChipLogError(Zcl, "Could not find ChipStructs$DescriptorClusterDeviceTypeStruct constructor");

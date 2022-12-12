@@ -75,10 +75,10 @@ public class ChipStructs {
   }
 
   public static class DescriptorClusterDeviceTypeStruct {
-    public Long type;
+    public Integer type;
     public Integer revision;
 
-    public DescriptorClusterDeviceTypeStruct(Long type, Integer revision) {
+    public DescriptorClusterDeviceTypeStruct(Integer type, Integer revision) {
       this.type = type;
       this.revision = revision;
     }
