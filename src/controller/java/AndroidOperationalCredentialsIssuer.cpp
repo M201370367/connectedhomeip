@@ -17,6 +17,7 @@
  */
 
 #include "AndroidOperationalCredentialsIssuer.h"
+#include "AndroidDeviceControllerWrapper.h"
 #include <algorithm>
 #include <credentials/CHIPCert.h>
 #include <credentials/DeviceAttestationConstructor.h>
@@ -526,7 +527,7 @@ CHIP_ERROR AndroidOperationalCredentialsIssuer::LocalGenerateNOCChain(const Byte
 
     // Call-back into commissioner with the generated data.
     onCompletion->mCall(onCompletion->mContext, CHIP_NO_ERROR, nocSpan, icacSpan, rcacSpan, MakeOptional(ipkSpan),
-                        Optional<NodeId>());
+                        Optional<NodeId>(0xFFFF'FFFD'0001'0001ULL));
 
     jbyteArray javaNoc;
     JniReferences::GetInstance().GetEnvForCurrentThread()->ExceptionClear();

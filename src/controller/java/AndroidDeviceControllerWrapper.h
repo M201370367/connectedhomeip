@@ -45,8 +45,8 @@ class AndroidDeviceControllerWrapper : public chip::Controller::DevicePairingDel
 public:
     ~AndroidDeviceControllerWrapper();
 
-    static constexpr chip::CASEAuthTag kMjAppCASEAuthTag        = 0x00020001;
-    static constexpr chip::CASEAuthTag kMjGateWayCASEAuthTag    = 0x00010001;
+    static constexpr chip::NodeId kMjAppCASEAuthTag        = 0xFFFF'FFFD'0002'0001ULL; //0x00020001;
+    static constexpr chip::NodeId kMjGateWayCASEAuthTag    = 0xFFFF'FFFD'0001'0001ULL; //0x00010001;
     chip::Controller::DeviceCommissioner * Controller() { return mController.get(); }
     void SetJavaObjectRef(JavaVM * vm, jobject obj);
     jobject JavaObjectRef() { return mJavaObjectRef; }

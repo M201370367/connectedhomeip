@@ -31,6 +31,7 @@ import chip.platform.NsdManagerServiceResolver
 import chip.platform.PreferencesConfigurationManager
 import chip.platform.PreferencesKeyValueStoreManager
 import org.w3c.dom.Node
+import java.math.BigInteger
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -47,9 +48,12 @@ object ChipClient {
   fun getDeviceController(context: Context): ChipDeviceController {
     getAndroidChipPlatform(context)
 
+    var adminSubject = BigInteger("FFFFFFFD00010001", 16)
+
     if (!this::chipDeviceController.isInitialized) {
       chipDeviceController = ChipDeviceController(ControllerParams.newBuilder().setControllerVendorId(VENDOR_ID)
-        .setIssuerNodeId(ISSUERNodeId).build())
+        .setIssuerNodeId(ISSUERNodeId)
+        .setAdminSubject(adminSubject.toLong()).build())
     }
     return chipDeviceController
   }
