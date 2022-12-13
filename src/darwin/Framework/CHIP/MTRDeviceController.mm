@@ -300,9 +300,12 @@ static NSString * const kErrorSpake2pVerifierSerializationFailed = @"PASE verifi
                 if ([self checkForStartError:errorCode logMsg:kErrorCSRValidation]) {
                     return;
                 }
+                
+                chip::CATValues cats;//手机写入手机CATs
+                cats.values[0] = 0x00020001;
 
                 errorCode = _operationalCredentialsDelegate->GenerateNOC([startupParams.nodeID unsignedLongLongValue],
-                    [startupParams.fabricID unsignedLongLongValue], chip::kUndefinedCATs, pubKey, noc);
+                    [startupParams.fabricID unsignedLongLongValue], cats, pubKey, noc);
 
                 if ([self checkForStartError:errorCode logMsg:kErrorGenerateNOC]) {
                     return;
@@ -726,10 +729,6 @@ static NSString * const kErrorSpake2pVerifierSerializationFailed = @"PASE verifi
     });
 }
 
-@end
-
-@implementation MTRDeviceController (InternalMethods)
-
 - (chip::FabricIndex)fabricIndex
 {
     if (!_cppCommissioner) {
@@ -738,6 +737,10 @@ static NSString * const kErrorSpake2pVerifierSerializationFailed = @"PASE verifi
 
     return _cppCommissioner->GetFabricIndex();
 }
+
+@end
+
+@implementation MTRDeviceController (InternalMethods)
 
 - (CHIP_ERROR)isRunningOnFabric:(chip::FabricTable *)fabricTable
                     fabricIndex:(chip::FabricIndex)fabricIndex

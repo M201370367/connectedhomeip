@@ -155,6 +155,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)shutdown;
 
+- (uint8_t)fabricIndex;
+
 @end
 
 NS_ASSUME_NONNULL_END

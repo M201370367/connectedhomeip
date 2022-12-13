@@ -218,6 +218,8 @@ NS_ASSUME_NONNULL_BEGIN
     intermediateCertificate:(MTRCertificateDERBytes * _Nullable)intermediateCertificate
             rootCertificate:(MTRCertificateDERBytes *)rootCertificate;
 
++ (NSData *)defaultIPK;
+
 @end
 
 NS_ASSUME_NONNULL_END

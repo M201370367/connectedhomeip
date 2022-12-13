@@ -25,6 +25,7 @@
 #include <credentials/CHIPCert.h>
 #include <credentials/FabricTable.h>
 #include <lib/core/PeerId.h>
+#include <lib/support/TestGroupData.h>
 
 using namespace chip;
 
@@ -43,7 +44,12 @@ using namespace chip;
 
     _nocSigner = nocSigner;
     _fabricID = [fabricID copy];
-    _ipk = [ipk copy];
+    if (ipk.length) {
+        _ipk = [ipk copy];
+    } else {
+        ByteSpan defaultIpkSpan = chip::GroupTesting::DefaultIpkValue::GetDefaultIpk();
+        _ipk = [AsData(defaultIpkSpan) copy];
+    }
 
     return self;
 }
@@ -104,6 +110,11 @@ using namespace chip;
     _operationalKeypair = params.operationalKeypair;
 
     return self;
+}
+
++ (NSData *)defaultIPK {
+    ByteSpan defaultIpkSpan = chip::GroupTesting::DefaultIpkValue::GetDefaultIpk();
+    return [AsData(defaultIpkSpan) copy];
 }
 
 @end
