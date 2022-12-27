@@ -18,7 +18,9 @@
 
 package com.google.chip.chiptool.provisioning
 
+import android.app.Dialog
 import android.bluetooth.BluetoothGatt
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -26,6 +28,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import chip.devicecontroller.ChipDeviceController
@@ -208,6 +211,14 @@ class DeviceProvisioningFragment : Fragment() {
     }
 
     override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
+
+    }
+
+    override fun onDVerifyWithNoDAC() {
+      requireActivity().runOnUiThread {
+        Log.d(TAG, "onDVerifyWithNoDAC")
+        deviceController?.doDACWithNoCert()
+      }
 
     }
 

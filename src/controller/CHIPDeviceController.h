@@ -532,6 +532,7 @@ public:
     void PerformCommissioningStep(DeviceProxy * device, CommissioningStage step, CommissioningParameters & params,
                                   CommissioningDelegate * delegate, EndpointId endpoint, Optional<System::Clock::Timeout> timeout);
 
+    CHIP_ERROR askUserDoPermitNoDAC(Credentials::DeviceAttestationVerifier::AttestationInfo & info);
     /**
      * @brief
      *   This function validates the Attestation Information sent by the device.

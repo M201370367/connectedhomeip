@@ -83,6 +83,9 @@ class BasicClientFragment : Fragment() {
     override fun onError(error: Throwable?) {
       Log.d(TAG, "onError: $error")
     }
+
+    override fun onDVerifyWithNoDAC() {
+    }
   }
 
 

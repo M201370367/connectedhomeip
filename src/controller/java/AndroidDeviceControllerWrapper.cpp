@@ -296,6 +296,7 @@ AndroidDeviceControllerWrapper * AndroidDeviceControllerWrapper::AllocateNew(
         return nullptr;
     }
     *errInfoOnFailure = DeviceControllerFactory::GetInstance().SetupCommissioner(setupParams, *wrapper->Controller());
+    opCredsIssuer->setDeviceController(wrapper->Controller());
     if (*errInfoOnFailure != CHIP_NO_ERROR)
     {
         return nullptr;
@@ -547,6 +548,7 @@ CHIP_ERROR AndroidDeviceControllerWrapper::initLocalPhoneCert(chip::NodeId nodeI
 
 
     *errInfoOnFailure = DeviceControllerFactory::GetInstance().SetupCommissioner(setupParams, *mController.get());
+    mOpCredsIssuer->setDeviceController(mController.get());
 
     // Setup IPK
     uint8_t compressedFabricId[sizeof(uint64_t)] = { 0 };

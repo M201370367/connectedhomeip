@@ -15,6 +15,10 @@ open class GenericChipDeviceListener : ChipDeviceController.CompletionListener {
     // No op
   }
 
+  override fun onDVerifyWithNoDAC() {
+    // No op
+  }
+
   override fun onPairingDeleted(code: Int) {
     // No op
   }

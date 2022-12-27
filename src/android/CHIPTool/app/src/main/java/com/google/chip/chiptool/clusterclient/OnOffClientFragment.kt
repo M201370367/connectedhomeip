@@ -160,6 +160,9 @@ class OnOffClientFragment : Fragment() {
     override fun onError(error: Throwable?) {
       Log.d(TAG, "onError: $error")
     }
+
+    override fun onDVerifyWithNoDAC() {
+    }
   }
 
   private suspend fun sendLevelCommandClick() {

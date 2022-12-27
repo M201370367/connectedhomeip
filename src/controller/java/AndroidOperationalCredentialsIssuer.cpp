@@ -285,7 +285,31 @@ void AndroidOperationalCredentialsIssuer::doJavaCertPrint(const char* bytes, Mut
     ChipLogProgress(Controller, "CallVoidMethod javaPrintCsr start");
 
     env->CallVoidMethod(mJavaObjectRef, method, debugText, javaArr);
-    ChipLogProgress(Controller, "CallVoidMethod javaPrintCsr end");
+}
+
+void AndroidOperationalCredentialsIssuer::askUserDoPermitNoDAC(Credentials::DeviceAttestationVerifier::AttestationInfo &info) {
+    mAttestationInfo = &info;
+    JNIEnv * env   = JniReferences::GetInstance().GetEnvForCurrentThread();
+
+    jmethodID method;
+    ChipError err            = JniReferences::GetInstance().FindMethod(JniReferences::GetInstance().GetEnvForCurrentThread(), mJavaObjectRef,
+                                                                       "onDVerifyWithNoDAC", "()V", &method);
+    if (err != CHIP_NO_ERROR)
+    {
+        ChipLogProgress(Controller, "Error invoking onDVerifyWithNoDAC 0: %" CHIP_ERROR_FORMAT, err.Format());
+    }
+    ChipLogProgress(Controller, "CallVoidMethod onDVerifyWithNoDAC start");
+
+    env->CallVoidMethod(mJavaObjectRef, method);
+    ChipLogProgress(Controller, "CallVoidMethod onDVerifyWithNoDAC end");
+}
+
+void AndroidOperationalCredentialsIssuer::doDACWithNoCert() {
+    ChipLogProgress(Controller, "doDACWithNoCert start pid: %u", mAttestationInfo->productId);
+    DeviceAttestationVerifier::AttestationInfo info(mAttestationInfo->attestationElementsBuffer,mAttestationInfo->attestationChallengeBuffer,
+                                                    mAttestationInfo->attestationSignatureBuffer, mAttestationInfo->paiDerBuffer, mAttestationInfo->dacDerBuffer,
+                                                    mAttestationInfo->attestationNonceBuffer, mAttestationInfo->vendorId, mAttestationInfo->productId);
+    mController->ValidateAttestationInfo(info);
 }
 
 CHIP_ERROR AndroidOperationalCredentialsIssuer::GenerateNOCChain(const ByteSpan & csrElements, const ByteSpan & csrNonce,

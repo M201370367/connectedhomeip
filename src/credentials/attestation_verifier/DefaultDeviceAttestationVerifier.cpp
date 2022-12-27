@@ -197,6 +197,7 @@ AttestationVerificationResult MapError(CertificateChainValidationResult certific
 void DefaultDACVerifier::VerifyAttestationInformation(const DeviceAttestationVerifier::AttestationInfo & info,
                                                       Callback::Callback<OnAttestationInformationVerification> * onCompletion)
 {
+    ChipLogProgress(Controller, "VerifyAttestationInformation Enter:");
     AttestationVerificationResult attestationError = AttestationVerificationResult::kSuccess;
 
     Platform::ScopedMemoryBuffer<uint8_t> paaCert;
@@ -262,6 +263,8 @@ void DefaultDACVerifier::VerifyAttestationInformation(const DeviceAttestationVer
 
         paaDerBuffer = MutableByteSpan(paaCert.Get(), paaCertAllocatedLen);
         err          = mAttestationTrustStore->GetProductAttestationAuthorityCert(akid, paaDerBuffer);
+        ChipLogProgress(Controller, "paaDerBuffer:");
+        ChipLogByteSpan(Controller, paaDerBuffer);
         VerifyOrExit(err == CHIP_NO_ERROR || err == CHIP_ERROR_NOT_IMPLEMENTED,
                      attestationError = AttestationVerificationResult::kPaaNotFound);
 
@@ -289,6 +292,7 @@ void DefaultDACVerifier::VerifyAttestationInformation(const DeviceAttestationVer
 #endif
 
     CertificateChainValidationResult chainValidationResult;
+    ChipLogProgress(Controller, "start to do ValidateCertificateChain");
     VerifyOrExit(ValidateCertificateChain(paaDerBuffer.data(), paaDerBuffer.size(), info.paiDerBuffer.data(),
                                           info.paiDerBuffer.size(), info.dacDerBuffer.data(), info.dacDerBuffer.size(),
                                           chainValidationResult) == CHIP_NO_ERROR,

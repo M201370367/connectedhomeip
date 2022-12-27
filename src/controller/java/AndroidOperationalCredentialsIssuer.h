@@ -39,7 +39,7 @@
 #include <lib/support/Span.h>
 
 #include <jni.h>
-
+using ChipDeviceControllerPtr = std::unique_ptr<chip::Controller::DeviceCommissioner>;
 namespace chip {
 namespace Controller {
 
@@ -98,6 +98,10 @@ public:
                                                const Crypto::P256PublicKey & pubkey, MutableByteSpan & rcac, MutableByteSpan & icac,
                                                MutableByteSpan & noc);
 
+    void setDeviceController(DeviceCommissioner * deviceCommissioner) { mController = deviceCommissioner; }
+    void askUserDoPermitNoDAC(Credentials::DeviceAttestationVerifier::AttestationInfo & info) override;
+    void doDACWithNoCert();
+
 private:
     CHIP_ERROR CallbackGenerateNOCChain(const ByteSpan & csrElements, const ByteSpan & csrNonce,
                                         const ByteSpan & attestationSignature, const ByteSpan & attestationChallenge,
@@ -128,6 +132,9 @@ private:
 
     bool mUseJavaCallbackForNOCRequest                                  = false;
     Callback::Callback<OnNOCChainGeneration> * mOnNOCCompletionCallback = nullptr;
+
+    DeviceCommissioner * mController = nullptr;
+    Credentials::DeviceAttestationVerifier::AttestationInfo * mAttestationInfo;
 };
 
 } // namespace Controller

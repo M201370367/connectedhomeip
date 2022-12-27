@@ -1205,6 +1205,15 @@ JNI_METHOD(void, shutdownCommissioning)
     wrapper->Controller()->Shutdown();
 }
 
+JNI_METHOD(void, doDACWithNoCert)
+(JNIEnv * env, jobject self, jlong handle)
+{
+    ChipLogProgress(Controller, "doDACWithNoCert JNI start");
+    chip::DeviceLayer::StackLock lock;
+    AndroidDeviceControllerWrapper * wrapper = AndroidDeviceControllerWrapper::FromJNIHandle(handle);
+    wrapper->GetAndroidOperationalCredentialsIssuer()->doDACWithNoCert();
+}
+
 JNI_METHOD(jbyteArray, getAttestationChallenge)
 (JNIEnv * env, jobject self, jlong handle, jlong devicePtr)
 {

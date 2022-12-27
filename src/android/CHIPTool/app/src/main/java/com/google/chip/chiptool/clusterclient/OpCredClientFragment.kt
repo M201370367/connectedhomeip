@@ -64,7 +64,9 @@ class OpCredClientFragment : Fragment() {
     }
 
     override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
-      TODO("Not yet implemented")
+    }
+
+    override fun onDVerifyWithNoDAC() {
     }
   }
 

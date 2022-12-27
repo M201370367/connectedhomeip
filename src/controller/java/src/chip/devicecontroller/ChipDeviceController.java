@@ -314,6 +314,13 @@ public class ChipDeviceController {
     }
   }
 
+  public void onDVerifyWithNoDAC() {
+    Log.i(TAG, "onDVerifyWithNoDAC");
+    if (completionListener != null) {
+      completionListener.onDVerifyWithNoDAC();
+    }
+  }
+
   public void onCommissioningComplete(long nodeId, int errorCode) {
     Log.i(TAG, "onCommissioningComplete1");
     if (completionListener != null) {
@@ -665,6 +672,11 @@ public class ChipDeviceController {
     shutdownCommissioning(deviceControllerPtr);
   }
 
+  public void doDACWithNoCert() {
+    Log.i(TAG, "doDACWithNoCert start");
+    doDACWithNoCert(deviceControllerPtr);
+  }
+
   private native PaseVerifierParams computePaseVerifier(
       long deviceControllerPtr, long devicePtr, long setupPincode, long iterations, byte[] salt);
 
@@ -781,6 +793,8 @@ public class ChipDeviceController {
 
   private native void shutdownCommissioning(long deviceControllerPtr);
 
+  private native void doDACWithNoCert(long deviceControllerPtr);
+
   static {
     System.loadLibrary("CHIPController");
   }
@@ -857,6 +871,8 @@ public class ChipDeviceController {
 
     /** Notifies the completion of pairing. */
     void onPairingComplete(int errorCode);
+
+    void onDVerifyWithNoDAC();
 
     /** Notifies the deletion of pairing session. */
     void onPairingDeleted(int errorCode);

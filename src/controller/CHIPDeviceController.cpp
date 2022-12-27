@@ -988,6 +988,7 @@ void DeviceCommissioner::OnAttestationResponse(void * context,
 void DeviceCommissioner::OnDeviceAttestationInformationVerification(
     void * context, const Credentials::DeviceAttestationVerifier::AttestationInfo & info, AttestationVerificationResult result)
 {
+    ChipLogProgress(Controller, "OnDeviceAttestationInformationVerification result: %hu", result);
     MATTER_TRACE_EVENT_SCOPE("OnDeviceAttestationInformationVerification", "DeviceCommissioner");
     DeviceCommissioner * commissioner = reinterpret_cast<DeviceCommissioner *>(context);
 
@@ -1116,12 +1117,23 @@ void DeviceCommissioner::ExtendArmFailSafeForDeviceAttestation(const Credentials
     }
 }
 
+CHIP_ERROR DeviceCommissioner::askUserDoPermitNoDAC(Credentials::DeviceAttestationVerifier::AttestationInfo &info) {
+    MATTER_TRACE_EVENT_SCOPE("ValidateAttestationInfo", "askUserDoPermitNoDAC");
+    VerifyOrReturnError(mState == State::Initialized, CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(mOperationalCredentialsDelegate != nullptr, CHIP_ERROR_INCORRECT_STATE);
+
+    mOperationalCredentialsDelegate->askUserDoPermitNoDAC(info);
+
+    return CHIP_NO_ERROR;
+}
+
 CHIP_ERROR DeviceCommissioner::ValidateAttestationInfo(const Credentials::DeviceAttestationVerifier::AttestationInfo & info)
 {
+    ChipLogProgress(Controller, "ValidateAttestationInfo pid: %u", info.productId);
+
     MATTER_TRACE_EVENT_SCOPE("ValidateAttestationInfo", "DeviceCommissioner");
     VerifyOrReturnError(mState == State::Initialized, CHIP_ERROR_INCORRECT_STATE);
     VerifyOrReturnError(mDeviceAttestationVerifier != nullptr, CHIP_ERROR_INCORRECT_STATE);
-
     mDeviceAttestationVerifier->VerifyAttestationInformation(info, &mDeviceAttestationInformationVerificationCallback);
 
     // TODO: Validate Firmware Information
@@ -2234,7 +2246,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
             params.GetAttestationSignature().Value(), params.GetPAI().Value(), params.GetDAC().Value(),
             params.GetAttestationNonce().Value(), params.GetRemoteVendorId().Value(), params.GetRemoteProductId().Value());
 
-        if (ValidateAttestationInfo(info) != CHIP_NO_ERROR)
+        if (askUserDoPermitNoDAC(info) != CHIP_NO_ERROR)
         {
             ChipLogError(Controller, "Error validating attestation information");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);
