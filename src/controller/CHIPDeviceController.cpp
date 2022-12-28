@@ -2245,8 +2245,11 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
             proxy->GetSecureSession().Value()->AsSecureSession()->GetCryptoContext().GetAttestationChallenge(),
             params.GetAttestationSignature().Value(), params.GetPAI().Value(), params.GetDAC().Value(),
             params.GetAttestationNonce().Value(), params.GetRemoteVendorId().Value(), params.GetRemoteProductId().Value());
-
+#ifdef USE_ANDROID_PLATFORM
         if (askUserDoPermitNoDAC(info) != CHIP_NO_ERROR)
+#else
+        if (ValidateAttestationInfo(info) != CHIP_NO_ERROR)
+#endif
         {
             ChipLogError(Controller, "Error validating attestation information");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);

@@ -59,6 +59,10 @@
 #define PTHREAD_NULL 0
 #endif // PTHREAD_NULL
 
+#ifndef USE_ANDROID_PLATFORM
+#define USE_ANDROID_PLATFORM 1
+#endif
+
 using namespace chip;
 using namespace chip::Inet;
 using namespace chip::Controller;
