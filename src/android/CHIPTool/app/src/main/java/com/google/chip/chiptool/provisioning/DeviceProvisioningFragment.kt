@@ -217,7 +217,7 @@ class DeviceProvisioningFragment : Fragment() {
     override fun onDVerifyWithNoDAC() {
       requireActivity().runOnUiThread {
         Log.d(TAG, "onDVerifyWithNoDAC")
-        deviceController?.doDACWithNoCert()
+        deviceController?.doDACWithNoCert(2)
       }
 
     }

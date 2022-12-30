@@ -81,6 +81,8 @@ namespace Controller {
 using namespace chip::Protocols::UserDirectedCommissioning;
 
 constexpr uint16_t kNumMaxActiveDevices = CHIP_CONFIG_CONTROLLER_MAX_ACTIVE_DEVICES;
+constexpr uint16_t USE_CHOOSE_CANCEL = 1;
+constexpr uint16_t USE_CHOOSE_GOON_COMMISSION = 2;
 
 // Raw functions for cluster callbacks
 void OnBasicFailure(void * context, CHIP_ERROR err);
@@ -533,6 +535,12 @@ public:
                                   CommissioningDelegate * delegate, EndpointId endpoint, Optional<System::Clock::Timeout> timeout);
 
     CHIP_ERROR askUserDoPermitNoDAC(Credentials::DeviceAttestationVerifier::AttestationInfo & info);
+    void SetUseAndroidPlatform() {
+#ifndef USE_ANDROID_PLATFORM
+#define USE_ANDROID_PLATFORM 1
+#endif
+            }
+    CHIP_ERROR ValidateAttestationInfo(const Credentials::DeviceAttestationVerifier::AttestationInfo & info, uint16_t useChoose);
     /**
      * @brief
      *   This function validates the Attestation Information sent by the device.

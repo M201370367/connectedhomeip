@@ -1127,6 +1127,18 @@ CHIP_ERROR DeviceCommissioner::askUserDoPermitNoDAC(Credentials::DeviceAttestati
     return CHIP_NO_ERROR;
 }
 
+CHIP_ERROR DeviceCommissioner::ValidateAttestationInfo(const Credentials::DeviceAttestationVerifier::AttestationInfo & info, uint16_t useChoose) {
+    ChipLogProgress(Controller, "ValidateAttestationInfo use choose: %u", useChoose);
+
+    if (useChoose == USE_CHOOSE_CANCEL) {
+        AttestationVerificationResult attestationError = AttestationVerificationResult::kPaaNotFound;
+        (&mDeviceAttestationInformationVerificationCallback)->mCall((&mDeviceAttestationInformationVerificationCallback)->mContext, info, attestationError);
+    } else {
+        ValidateAttestationInfo(info);
+    }
+    return CHIP_NO_ERROR;
+}
+
 CHIP_ERROR DeviceCommissioner::ValidateAttestationInfo(const Credentials::DeviceAttestationVerifier::AttestationInfo & info)
 {
     ChipLogProgress(Controller, "ValidateAttestationInfo pid: %u", info.productId);

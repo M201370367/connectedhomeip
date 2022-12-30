@@ -59,10 +59,6 @@
 #define PTHREAD_NULL 0
 #endif // PTHREAD_NULL
 
-#ifndef USE_ANDROID_PLATFORM
-#define USE_ANDROID_PLATFORM 1
-#endif
-
 using namespace chip;
 using namespace chip::Inet;
 using namespace chip::Controller;
@@ -1210,12 +1206,12 @@ JNI_METHOD(void, shutdownCommissioning)
 }
 
 JNI_METHOD(void, doDACWithNoCert)
-(JNIEnv * env, jobject self, jlong handle)
+(JNIEnv * env, jobject self, jlong handle, jint use_choose)
 {
-    ChipLogProgress(Controller, "doDACWithNoCert JNI start");
+    ChipLogProgress(Controller, "doDACWithNoCert JNI enter");
     chip::DeviceLayer::StackLock lock;
     AndroidDeviceControllerWrapper * wrapper = AndroidDeviceControllerWrapper::FromJNIHandle(handle);
-    wrapper->GetAndroidOperationalCredentialsIssuer()->doDACWithNoCert();
+    wrapper->GetAndroidOperationalCredentialsIssuer()->doDACWithNoCert(use_choose);
 }
 
 JNI_METHOD(jbyteArray, getAttestationChallenge)

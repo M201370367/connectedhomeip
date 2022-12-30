@@ -672,9 +672,9 @@ public class ChipDeviceController {
     shutdownCommissioning(deviceControllerPtr);
   }
 
-  public void doDACWithNoCert() {
+  public void doDACWithNoCert(int useChoose) {
     Log.i(TAG, "doDACWithNoCert start");
-    doDACWithNoCert(deviceControllerPtr);
+    doDACWithNoCert(deviceControllerPtr, useChoose);
   }
 
   private native PaseVerifierParams computePaseVerifier(
@@ -793,7 +793,7 @@ public class ChipDeviceController {
 
   private native void shutdownCommissioning(long deviceControllerPtr);
 
-  private native void doDACWithNoCert(long deviceControllerPtr);
+  private native void doDACWithNoCert(long deviceControllerPtr, int useChoose);
 
   static {
     System.loadLibrary("CHIPController");

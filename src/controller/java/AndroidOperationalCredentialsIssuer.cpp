@@ -304,12 +304,12 @@ void AndroidOperationalCredentialsIssuer::askUserDoPermitNoDAC(Credentials::Devi
     ChipLogProgress(Controller, "CallVoidMethod onDVerifyWithNoDAC end");
 }
 
-void AndroidOperationalCredentialsIssuer::doDACWithNoCert() {
-    ChipLogProgress(Controller, "doDACWithNoCert start pid: %u", mAttestationInfo->productId);
+void AndroidOperationalCredentialsIssuer::doDACWithNoCert(uint16_t useChoose) {
+    ChipLogProgress(Controller, "doDACWithNoCert start pid: %u, use choose: %u", mAttestationInfo->productId, useChoose);
     DeviceAttestationVerifier::AttestationInfo info(mAttestationInfo->attestationElementsBuffer,mAttestationInfo->attestationChallengeBuffer,
                                                     mAttestationInfo->attestationSignatureBuffer, mAttestationInfo->paiDerBuffer, mAttestationInfo->dacDerBuffer,
                                                     mAttestationInfo->attestationNonceBuffer, mAttestationInfo->vendorId, mAttestationInfo->productId);
-    mController->ValidateAttestationInfo(info);
+    mController->ValidateAttestationInfo(info, useChoose);
 }
 
 CHIP_ERROR AndroidOperationalCredentialsIssuer::GenerateNOCChain(const ByteSpan & csrElements, const ByteSpan & csrNonce,

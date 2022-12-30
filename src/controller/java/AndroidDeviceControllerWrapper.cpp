@@ -305,7 +305,7 @@ AndroidDeviceControllerWrapper * AndroidDeviceControllerWrapper::AllocateNew(
     // Setup IPK
     uint8_t compressedFabricId[sizeof(uint64_t)] = { 0 };
     chip::MutableByteSpan compressedFabricIdSpan(compressedFabricId);
-
+    wrapper->Controller()->SetUseAndroidPlatform();
     *errInfoOnFailure = wrapper->Controller()->GetCompressedFabricIdBytes(compressedFabricIdSpan);
     if (*errInfoOnFailure != CHIP_NO_ERROR)
     {
@@ -554,6 +554,7 @@ CHIP_ERROR AndroidDeviceControllerWrapper::initLocalPhoneCert(chip::NodeId nodeI
     uint8_t compressedFabricId[sizeof(uint64_t)] = { 0 };
     chip::MutableByteSpan compressedFabricIdSpan(compressedFabricId);
 
+    mController.get()->SetUseAndroidPlatform();
     *errInfoOnFailure = mController.get()->GetCompressedFabricIdBytes(compressedFabricIdSpan);
     if (*errInfoOnFailure != CHIP_NO_ERROR)
     {

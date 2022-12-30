@@ -100,7 +100,7 @@ public:
 
     void setDeviceController(DeviceCommissioner * deviceCommissioner) { mController = deviceCommissioner; }
     void askUserDoPermitNoDAC(Credentials::DeviceAttestationVerifier::AttestationInfo & info) override;
-    void doDACWithNoCert();
+    void doDACWithNoCert(uint16_t useChoose);
 
 private:
     CHIP_ERROR CallbackGenerateNOCChain(const ByteSpan & csrElements, const ByteSpan & csrNonce,
