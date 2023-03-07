@@ -15,7 +15,7 @@ open class GenericChipDeviceListener : ChipDeviceController.CompletionListener {
     // No op
   }
 
-  override fun onDVerifyWithNoDAC() {
+  override fun getRemotePAA(byteArray: ByteArray) {
     // No op
   }
 

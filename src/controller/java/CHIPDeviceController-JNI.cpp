@@ -1206,12 +1206,20 @@ JNI_METHOD(void, shutdownCommissioning)
 }
 
 JNI_METHOD(void, doDACWithNoCert)
-(JNIEnv * env, jobject self, jlong handle, jint use_choose)
+(JNIEnv * env, jobject self, jlong handle, jint use_choose, jbyteArray paaCertBytes)
 {
     ChipLogProgress(Controller, "doDACWithNoCert JNI enter");
     chip::DeviceLayer::StackLock lock;
     AndroidDeviceControllerWrapper * wrapper = AndroidDeviceControllerWrapper::FromJNIHandle(handle);
-    wrapper->GetAndroidOperationalCredentialsIssuer()->doDACWithNoCert(use_choose);
+
+    if (paaCertBytes == nullptr) {
+        ByteSpan paaCertEmpty;
+        wrapper->GetAndroidOperationalCredentialsIssuer()->doDACWithNoCert(use_choose, paaCertEmpty);
+    } else {
+        JniByteArray paaCert(env, paaCertBytes);
+        wrapper->GetAndroidOperationalCredentialsIssuer()->doDACWithNoCert(use_choose, paaCert.byteSpan());
+    }
+
 }
 
 JNI_METHOD(jbyteArray, getAttestationChallenge)

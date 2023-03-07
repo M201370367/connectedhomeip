@@ -76,6 +76,11 @@ public:
 
     CsaCdKeysTrustStore * GetCertificationDeclarationTrustStore() override { return &mCdKeysTrustStore; }
 
+    AttestationTrustStore * GetPaaRootStore() override
+    {
+        return const_cast<AttestationTrustStore *>(mAttestationTrustStore);
+    }
+
 protected:
     DefaultDACVerifier() {}
 

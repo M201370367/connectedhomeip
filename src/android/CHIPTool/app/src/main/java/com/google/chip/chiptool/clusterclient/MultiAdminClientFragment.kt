@@ -79,7 +79,7 @@ class MultiAdminClientFragment : Fragment() {
       Log.d(TAG, "onError: $error")
     }
 
-    override fun onDVerifyWithNoDAC() {
+    override fun getRemotePAA(byteArray: ByteArray) {
     }
   }
 

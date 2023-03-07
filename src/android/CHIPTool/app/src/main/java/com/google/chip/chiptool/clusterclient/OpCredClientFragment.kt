@@ -66,7 +66,7 @@ class OpCredClientFragment : Fragment() {
     override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
     }
 
-    override fun onDVerifyWithNoDAC() {
+    override fun getRemotePAA(byteArray: ByteArray) {
     }
   }
 

@@ -214,10 +214,10 @@ class DeviceProvisioningFragment : Fragment() {
 
     }
 
-    override fun onDVerifyWithNoDAC() {
+    override fun getRemotePAA(byteArray: ByteArray) {
       requireActivity().runOnUiThread {
-        Log.d(TAG, "onDVerifyWithNoDAC")
-        deviceController?.doDACWithNoCert(2)
+        Log.d(TAG, "getRemotePAA")
+        deviceController?.doDACWithNoCert(3, null)
       }
 
     }

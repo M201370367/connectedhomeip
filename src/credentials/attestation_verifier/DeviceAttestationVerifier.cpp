@@ -140,5 +140,8 @@ DeviceAttestationVerifier::AttestationDeviceInfo::AttestationDeviceInfo(const At
     }
 }
 
+    CHIP_ERROR AttestationTrustStore::SetOfficialPAACert(ByteSpan *derCerts, size_t numCerts) {
+        return CHIP_ERROR();
+    }
 } // namespace Credentials
 } // namespace chip

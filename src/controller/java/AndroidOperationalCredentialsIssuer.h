@@ -99,8 +99,8 @@ public:
                                                MutableByteSpan & noc);
 
     void setDeviceController(DeviceCommissioner * deviceCommissioner) { mController = deviceCommissioner; }
-    void askUserDoPermitNoDAC(Credentials::DeviceAttestationVerifier::AttestationInfo & info) override;
-    void doDACWithNoCert(uint16_t useChoose);
+    void getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo & info, ByteSpan paiCert) override;
+    void doDACWithNoCert(uint16_t useChoose, ByteSpan paaCert);
 
 private:
     CHIP_ERROR CallbackGenerateNOCChain(const ByteSpan & csrElements, const ByteSpan & csrNonce,

@@ -287,29 +287,34 @@ void AndroidOperationalCredentialsIssuer::doJavaCertPrint(const char* bytes, Mut
     env->CallVoidMethod(mJavaObjectRef, method, debugText, javaArr);
 }
 
-void AndroidOperationalCredentialsIssuer::askUserDoPermitNoDAC(Credentials::DeviceAttestationVerifier::AttestationInfo &info) {
+void AndroidOperationalCredentialsIssuer::getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo &info, ByteSpan paiCert) {
     mAttestationInfo = &info;
     JNIEnv * env   = JniReferences::GetInstance().GetEnvForCurrentThread();
 
+    jbyteArray javaArr;
+    JniReferences::GetInstance().GetEnvForCurrentThread()->ExceptionClear();
+    JniReferences::GetInstance().N2J_ByteArray(JniReferences::GetInstance().GetEnvForCurrentThread(), paiCert.data(),
+                                               paiCert.size(), javaArr);
+
     jmethodID method;
     ChipError err            = JniReferences::GetInstance().FindMethod(JniReferences::GetInstance().GetEnvForCurrentThread(), mJavaObjectRef,
-                                                                       "onDVerifyWithNoDAC", "()V", &method);
+                                                                       "getRemotePAA", "([B)V", &method);
     if (err != CHIP_NO_ERROR)
     {
-        ChipLogProgress(Controller, "Error invoking onDVerifyWithNoDAC 0: %" CHIP_ERROR_FORMAT, err.Format());
+        ChipLogProgress(Controller, "Error invoking getRemotePAA 0: %" CHIP_ERROR_FORMAT, err.Format());
     }
-    ChipLogProgress(Controller, "CallVoidMethod onDVerifyWithNoDAC start");
+    ChipLogProgress(Controller, "CallVoidMethod getRemotePAA start");
 
-    env->CallVoidMethod(mJavaObjectRef, method);
-    ChipLogProgress(Controller, "CallVoidMethod onDVerifyWithNoDAC end");
+    env->CallVoidMethod(mJavaObjectRef, method, javaArr);
+    ChipLogProgress(Controller, "CallVoidMethod getRemotePAA end");
 }
 
-void AndroidOperationalCredentialsIssuer::doDACWithNoCert(uint16_t useChoose) {
+void AndroidOperationalCredentialsIssuer::doDACWithNoCert(uint16_t useChoose, ByteSpan paaCert) {
     ChipLogProgress(Controller, "doDACWithNoCert start pid: %u, use choose: %u", mAttestationInfo->productId, useChoose);
     DeviceAttestationVerifier::AttestationInfo info(mAttestationInfo->attestationElementsBuffer,mAttestationInfo->attestationChallengeBuffer,
                                                     mAttestationInfo->attestationSignatureBuffer, mAttestationInfo->paiDerBuffer, mAttestationInfo->dacDerBuffer,
                                                     mAttestationInfo->attestationNonceBuffer, mAttestationInfo->vendorId, mAttestationInfo->productId);
-    mController->ValidateAttestationInfo(info, useChoose);
+    mController->ValidateAttestationInfo(info, useChoose, paaCert);
 }
 
 CHIP_ERROR AndroidOperationalCredentialsIssuer::GenerateNOCChain(const ByteSpan & csrElements, const ByteSpan & csrNonce,

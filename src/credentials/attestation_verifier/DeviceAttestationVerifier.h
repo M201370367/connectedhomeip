@@ -147,6 +147,7 @@ public:
      *
      */
     virtual CHIP_ERROR GetProductAttestationAuthorityCert(const ByteSpan & skid, MutableByteSpan & outPaaDerBuffer) const = 0;
+    virtual CHIP_ERROR SetOfficialPAACert(ByteSpan * derCerts, size_t numCerts);
 };
 
 /**
@@ -228,6 +229,13 @@ class ArrayAttestationTrustStore : public AttestationTrustStore
 public:
     ArrayAttestationTrustStore(const ByteSpan * derCerts, size_t numCerts) : mDerCerts(derCerts), mNumCerts(numCerts) {}
 
+    CHIP_ERROR SetOfficialPAACert(ByteSpan * derCerts, size_t numCerts) override
+    {
+        mOfficialPAA = derCerts;
+        mNumOfficialPAA = numCerts;
+        return CHIP_NO_ERROR;
+    }
+
     CHIP_ERROR GetProductAttestationAuthorityCert(const ByteSpan & skid, MutableByteSpan & outPaaDerBuffer) const override
     {
         VerifyOrReturnError(!skid.empty() && (skid.data() != nullptr), CHIP_ERROR_INVALID_ARGUMENT);
@@ -236,10 +244,18 @@ public:
         size_t paaIdx;
         ByteSpan candidate;
 
-        for (paaIdx = 0; paaIdx < mNumCerts; ++paaIdx)
+        ByteSpan * cert = const_cast<ByteSpan *>(mDerCerts);
+        size_t certSize = mNumCerts;
+
+        if (!mOfficialPAA->empty()) {
+            cert = reinterpret_cast<ByteSpan *>(mOfficialPAA);
+            certSize = mNumOfficialPAA;
+        }
+
+        for (paaIdx = 0; paaIdx < certSize; ++paaIdx)
         {
             uint8_t skidBuf[Crypto::kSubjectKeyIdentifierLength] = { 0 };
-            candidate                                            = mDerCerts[paaIdx];
+            candidate                                            = cert[paaIdx];
             MutableByteSpan candidateSkidSpan{ skidBuf };
             VerifyOrReturnError(CHIP_NO_ERROR == Crypto::ExtractSKIDFromX509Cert(candidate, candidateSkidSpan),
                                 CHIP_ERROR_INTERNAL);
@@ -257,6 +273,8 @@ public:
 protected:
     const ByteSpan * mDerCerts;
     const size_t mNumCerts;
+    ByteSpan * mOfficialPAA;
+    size_t mNumOfficialPAA;
 };
 
 class DeviceAttestationVerifier
@@ -393,6 +411,7 @@ public:
 
     void EnableCdTestKeySupport(bool enabled) { mEnableCdTestKeySupport = enabled; }
     bool IsCdTestKeySupported() const { return mEnableCdTestKeySupport; }
+    virtual AttestationTrustStore * GetPaaRootStore() { return nullptr; }
 
 protected:
     CHIP_ERROR ValidateAttestationSignature(const Crypto::P256PublicKey & pubkey, const ByteSpan & attestationElements,

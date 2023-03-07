@@ -314,10 +314,11 @@ public class ChipDeviceController {
     }
   }
 
-  public void onDVerifyWithNoDAC() {
-    Log.i(TAG, "onDVerifyWithNoDAC");
+  public void getRemotePAA(byte[] paicert) {
+    Log.i(TAG, "getRemotePAA");
+    javaPrintCsr("pai-cert", paicert);
     if (completionListener != null) {
-      completionListener.onDVerifyWithNoDAC();
+      completionListener.getRemotePAA(paicert);
     }
   }
 
@@ -672,9 +673,12 @@ public class ChipDeviceController {
     shutdownCommissioning(deviceControllerPtr);
   }
 
-  public void doDACWithNoCert(int useChoose) {
-    Log.i(TAG, "doDACWithNoCert start");
-    doDACWithNoCert(deviceControllerPtr, useChoose);
+  public void doDACWithNoCert(int useChoose, byte[] paaCertBytes) {
+    Log.i(TAG, "doDACWithNoCert start " + useChoose);
+    if (useChoose == 2 && (paaCertBytes == null || paaCertBytes.length == 0)) {
+      throw new RuntimeException("paaCertBytes cannot be null if useChoose is 2!");
+    }
+    doDACWithNoCert(deviceControllerPtr, useChoose, paaCertBytes);
   }
 
   private native PaseVerifierParams computePaseVerifier(
@@ -793,7 +797,7 @@ public class ChipDeviceController {
 
   private native void shutdownCommissioning(long deviceControllerPtr);
 
-  private native void doDACWithNoCert(long deviceControllerPtr, int useChoose);
+  private native void doDACWithNoCert(long deviceControllerPtr, int useChoose, byte[] paaCertBytes);
 
   static {
     System.loadLibrary("CHIPController");
@@ -872,7 +876,7 @@ public class ChipDeviceController {
     /** Notifies the completion of pairing. */
     void onPairingComplete(int errorCode);
 
-    void onDVerifyWithNoDAC();
+    void getRemotePAA(byte[] paicert);
 
     /** Notifies the deletion of pairing session. */
     void onPairingDeleted(int errorCode);
