@@ -675,7 +675,7 @@ public class ChipDeviceController {
 
   public void doDACWithNoCert(int useChoose, byte[] paaCertBytes) {
     Log.i(TAG, "doDACWithNoCert start " + useChoose);
-    if (useChoose == 2 && (paaCertBytes == null || paaCertBytes.length == 0)) {
+    if (useChoose == 3 && (paaCertBytes == null || paaCertBytes.length == 0)) {
       throw new RuntimeException("paaCertBytes cannot be null if useChoose is 2!");
     }
     doDACWithNoCert(deviceControllerPtr, useChoose, paaCertBytes);
