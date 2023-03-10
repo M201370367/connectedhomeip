@@ -538,7 +538,7 @@ public:
     CHIP_ERROR getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo & info);
     void SetUseAndroidPlatform() {
 #ifndef USE_ANDROID_PLATFORM
-#define USE_ANDROID_PLATFORM 1
+#define USE_ANDROID_PLATFORM 0
 #endif
             }
     CHIP_ERROR ValidateAttestationInfo(const Credentials::DeviceAttestationVerifier::AttestationInfo & info, uint16_t useChoose, ByteSpan paaCert);

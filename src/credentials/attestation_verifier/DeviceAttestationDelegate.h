@@ -62,6 +62,8 @@ public:
                                               const DeviceAttestationVerifier::AttestationDeviceInfo & info,
                                               AttestationVerificationResult attestationResult) = 0;
 
+    virtual void getRemotePAAThenContinueVerify(Controller::DeviceCommissioner * deviceCommissioner, Credentials::DeviceAttestationVerifier::AttestationInfo & info) = 0;
+
     /**
      * @brief
      *   Override this method to return whether the attestation delegate wants the commissioner to wait for a

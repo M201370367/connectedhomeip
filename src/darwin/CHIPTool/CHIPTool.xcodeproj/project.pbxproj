@@ -12,8 +12,8 @@
 		2C460C2425D7594B000512D6 /* DeviceSelector.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C460C2325D7594B000512D6 /* DeviceSelector.m */; };
 		2C460C3225D97CB3000512D6 /* UnpairDevicesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C460C3025D97CB3000512D6 /* UnpairDevicesViewController.m */; };
 		51C8E3FB28261DCF00D47D00 /* FabricKeys.m in Sources */ = {isa = PBXBuildFile; fileRef = 51C8E3FA28261DCF00D47D00 /* FabricKeys.m */; };
-		80CF34D4292F727800586DB9 /* Matter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D437613B285BC0060051FEA2 /* Matter.framework */; };
-		80CF34D5292F727800586DB9 /* Matter.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D437613B285BC0060051FEA2 /* Matter.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		80248E6A29B9C81500174B39 /* Matter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D437613B285BC0060051FEA2 /* Matter.framework */; };
+		80248E6B29B9C81500174B39 /* Matter.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D437613B285BC0060051FEA2 /* Matter.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		991DC091247747F500C13860 /* EnumerateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 991DC090247747F500C13860 /* EnumerateViewController.m */; };
 		B204A621244E1D0600C7C0E1 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B204A620244E1D0600C7C0E1 /* AppDelegate.m */; };
 		B204A624244E1D0600C7C0E1 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B204A623244E1D0600C7C0E1 /* SceneDelegate.m */; };
@@ -41,13 +41,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		80CF34D6292F727800586DB9 /* Embed Frameworks */ = {
+		80248E6C29B9C81500174B39 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				80CF34D5292F727800586DB9 /* Matter.framework in Embed Frameworks */,
+				80248E6B29B9C81500174B39 /* Matter.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -103,7 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				80CF34D4292F727800586DB9 /* Matter.framework in Frameworks */,
+				80248E6A29B9C81500174B39 /* Matter.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,7 +302,7 @@
 				B204A618244E1D0600C7C0E1 /* Sources */,
 				B204A619244E1D0600C7C0E1 /* Frameworks */,
 				B204A61A244E1D0600C7C0E1 /* Resources */,
-				80CF34D6292F727800586DB9 /* Embed Frameworks */,
+				80248E6C29B9C81500174B39 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -567,7 +567,7 @@
 				CODE_SIGN_ENTITLEMENTS = CHIPTool/CHIPTool.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = U9CPFZ4H5P;
+				DEVELOPMENT_TEAM = 5Z3RQE949K;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = CHIPTool/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -590,7 +590,7 @@
 				CODE_SIGN_ENTITLEMENTS = CHIPTool/CHIPTool.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = U9CPFZ4H5P;
+				DEVELOPMENT_TEAM = 5Z3RQE949K;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = CHIPTool/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

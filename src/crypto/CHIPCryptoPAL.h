@@ -1479,6 +1479,11 @@ CHIP_ERROR ExtractSKIDFromX509Cert(const ByteSpan & certificate, MutableByteSpan
 CHIP_ERROR ExtractAKIDFromX509Cert(const ByteSpan & certificate, MutableByteSpan & akid);
 
 /**
+ * @brief Extracts the issuer from an X509 Certificate.
+ **/
+CHIP_ERROR ExtractIssuerFromX509Cert(const ByteSpan & certificate, MutableByteSpan & issuer);
+
+/**
  * Defines DN attribute types that can include endocing of VID/PID parameters.
  */
 enum class DNAttrType

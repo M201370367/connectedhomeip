@@ -1113,33 +1113,55 @@
     return self;
 }
 
-- (void)deviceAttestationFailedForController:(MTRDeviceController *)controller device:(void *)device error:(NSError * _Nonnull)error
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIAlertController * alertController = [UIAlertController
-            alertControllerWithTitle:@"Device Attestation"
-                             message:@"Device Attestation failed for device under commissioning. Do you wish to continue pairing?"
-                      preferredStyle:UIAlertControllerStyleAlert];
+- (void)deviceAttestationCompletedForController:(MTRDeviceController *)controller
+                                         device:(void *)device
+                          attestationDeviceInfo:(MTRDeviceAttestationDeviceInfo *)attestationDeviceInfo
+                                          error:(NSError * _Nullable)error {
+    if (error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            UIAlertController * alertController = [UIAlertController
+                alertControllerWithTitle:@"Device Attestation"
+                                 message:@"Device Attestation failed for device under commissioning. Do you wish to continue pairing?"
+                          preferredStyle:UIAlertControllerStyleAlert];
 
-        [alertController addAction:[UIAlertAction actionWithTitle:@"No"
-                                                            style:UIAlertActionStyleDefault
-                                                          handler:^(UIAlertAction * action) {
-                                                              NSError * err;
-                                                              [controller continueCommissioningDevice:device
-                                                                             ignoreAttestationFailure:NO
-                                                                                                error:&err];
-                                                          }]];
+            [alertController addAction:[UIAlertAction actionWithTitle:@"No"
+                                                                style:UIAlertActionStyleDefault
+                                                              handler:^(UIAlertAction * action) {
+                                                                  NSError * err;
+                                                                  [controller continueCommissioningDevice:device
+                                                                                 ignoreAttestationFailure:NO
+                                                                                                    error:&err];
+                                                              }]];
 
-        [alertController addAction:[UIAlertAction actionWithTitle:@"Continue"
-                                                            style:UIAlertActionStyleDefault
-                                                          handler:^(UIAlertAction * action) {
-                                                              NSError * err;
-                                                              [controller continueCommissioningDevice:device
-                                                                             ignoreAttestationFailure:YES
-                                                                                                error:&err];
-                                                          }]];
+            [alertController addAction:[UIAlertAction actionWithTitle:@"Continue"
+                                                                style:UIAlertActionStyleDefault
+                                                              handler:^(UIAlertAction * action) {
+                                                                  NSError * err;
+                                                                  [controller continueCommissioningDevice:device
+                                                                                 ignoreAttestationFailure:YES
+                                                                                                    error:&err];
+                                                              }]];
 
-        [self.viewController presentViewController:alertController animated:YES completion:nil];
+            [self.viewController presentViewController:alertController animated:YES completion:nil];
+        });
+    }
+}
+
+- (void)deviceAttestationAskForRemotePAAForSubjectKeyID:(NSData *)skid subject:(NSData *)subject completion:(void (^)(NSData *paaData))completion {
+    //test code
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSString *paaDataString = @"MIIBzzCCAXSgAwIBAgIIHD7Re2PC4v4wCgYIKoZIzj0EAwIwODEgMB4GA1UEAwwX"
+        "WGlhb21pIE1pamlhIE1hdHRlciBQQUExFDASBgorBgEEAYKifAIBDAQxMjZFMCAX"
+        "DTIyMTIwNzEyNTkzMVoYDzk5OTkxMjMxMjM1OTU5WjA4MSAwHgYDVQQDDBdYaWFv"
+        "bWkgTWlqaWEgTWF0dGVyIFBBQTEUMBIGCisGAQQBgqJ8AgEMBDEyNkUwWTATBgcq"
+        "hkjOPQIBBggqhkjOPQMBBwNCAAS8fHbfdztglyhDdSuhnvUkiQwEZwSdq2P7CqkX"
+        "g6hsuVR5Y3Bew/o5pMVwpPFqW/9dia2YGbBW4CPpZYiz/VhXo2YwZDASBgNVHRMB"
+        "Af8ECDAGAQH/AgEBMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQUMbt+ENHwgebG"
+        "VDCRxEpqeR3U7gkwHwYDVR0jBBgwFoAUMbt+ENHwgebGVDCRxEpqeR3U7gkwCgYI"
+        "KoZIzj0EAwIDSQAwRgIhAJLuT66XntEO1+WBY5ovx/1HhwW6dbYPPyQWsIj0zJJC"
+        "AiEAifz6pqyxjuEXQPGGl2Au46DAPcHY5m7TGg7q0Uzp+6Y=";
+        NSData *paaData = [[NSData alloc] initWithBase64EncodedString:paaDataString options:0];
+        completion(paaData);
     });
 }
 

@@ -31,8 +31,17 @@ public:
     CHIP_ERROR GetProductAttestationAuthorityCert(
         const chip::ByteSpan & skid, chip::MutableByteSpan & outPaaDerBuffer) const override;
 
+
+    CHIP_ERROR SetOfficialPAACert(chip::ByteSpan * derCerts, size_t numCerts) override
+    {
+        mOfficialPAA = derCerts;
+        mNumOfficialPAA = numCerts;
+        return CHIP_NO_ERROR;
+    }
 private:
-    NSArray<NSData *> * mPaaCerts;
+    NSArray <NSData *> * mPaaCerts;
+    chip::ByteSpan * mOfficialPAA;
+    size_t mNumOfficialPAA;
 };
 
 NS_ASSUME_NONNULL_END

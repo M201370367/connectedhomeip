@@ -47,6 +47,8 @@ public:
         const chip::Credentials::DeviceAttestationVerifier::AttestationDeviceInfo & info,
         chip::Credentials::AttestationVerificationResult attestationResult) override;
 
+    void getRemotePAAThenContinueVerify(chip::Controller::DeviceCommissioner * deviceCommissioner, chip::Credentials::DeviceAttestationVerifier::AttestationInfo & info) override;
+
     bool ShouldWaitAfterDeviceAttestation() override { return mShouldWaitAfterDeviceAttestation; }
 
     chip::Credentials::AttestationVerificationResult attestationVerificationResult() const { return mResult; }

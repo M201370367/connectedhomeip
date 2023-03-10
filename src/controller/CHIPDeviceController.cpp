@@ -1121,8 +1121,18 @@ CHIP_ERROR DeviceCommissioner::getRemotePAA(Credentials::DeviceAttestationVerifi
     MATTER_TRACE_EVENT_SCOPE("ValidateAttestationInfo", "getRemotePAA");
     VerifyOrReturnError(mState == State::Initialized, CHIP_ERROR_INCORRECT_STATE);
     VerifyOrReturnError(mOperationalCredentialsDelegate != nullptr, CHIP_ERROR_INCORRECT_STATE);
-
-    mOperationalCredentialsDelegate->getRemotePAA(info, info.paiDerBuffer);
+    #if USE_ANDROID_PLATFORM
+        mOperationalCredentialsDelegate->getRemotePAA(info, info.paiDerBuffer);
+    #else
+        auto & params = mDefaultCommissioner->GetCommissioningParameters();
+        Credentials::DeviceAttestationDelegate * deviceAttestationDelegate = params.GetDeviceAttestationDelegate();
+        if (deviceAttestationDelegate) {
+            ChipLogProgress(Controller, "Device attestation ask for remote paa and will continue verify");
+            deviceAttestationDelegate->getRemotePAAThenContinueVerify(this, info);
+        } else {
+            ValidateAttestationInfo(info);
+        }
+    #endif
 
     return CHIP_NO_ERROR;
 }
@@ -2270,11 +2280,8 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
             proxy->GetSecureSession().Value()->AsSecureSession()->GetCryptoContext().GetAttestationChallenge(),
             params.GetAttestationSignature().Value(), params.GetPAI().Value(), params.GetDAC().Value(),
             params.GetAttestationNonce().Value(), params.GetRemoteVendorId().Value(), params.GetRemoteProductId().Value());
-#ifdef USE_ANDROID_PLATFORM
+
         if (getRemotePAA(info) != CHIP_NO_ERROR)
-#else
-        if (ValidateAttestationInfo(info) != CHIP_NO_ERROR)
-#endif
         {
             ChipLogError(Controller, "Error validating attestation information");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);

@@ -278,18 +278,8 @@ static NSString * const kErrorOtaProviderInit = @"Init failure while creating an
 
         // Initialize device attestation verifier
         const Credentials::AttestationTrustStore * trustStore;
-        if (startupParams.paaCerts) {
-            _attestationTrustStoreBridge = new MTRAttestationTrustStoreBridge(startupParams.paaCerts);
-            if (_attestationTrustStoreBridge == nullptr) {
-                MTR_LOG_ERROR("Error: %@", kErrorAttestationTrustStoreInit);
-                errorCode = CHIP_ERROR_NO_MEMORY;
-                return;
-            }
-            trustStore = _attestationTrustStoreBridge;
-        } else {
-            // TODO: Replace testingRootStore with a AttestationTrustStore that has the necessary official PAA roots available
-            trustStore = Credentials::GetTestAttestationTrustStore();
-        }
+        _attestationTrustStoreBridge = new MTRAttestationTrustStoreBridge(startupParams.paaCerts);
+        trustStore = _attestationTrustStoreBridge;
         _deviceAttestationVerifier = new Credentials::DefaultDACVerifier(trustStore);
         if (_deviceAttestationVerifier == nullptr) {
             MTR_LOG_ERROR("Error: %@", kErrorDACVerifierInit);

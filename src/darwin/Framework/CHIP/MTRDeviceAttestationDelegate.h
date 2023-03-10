@@ -74,6 +74,8 @@ NS_ASSUME_NONNULL_BEGIN
                                       device:(void *)device
                                        error:(NSError * _Nonnull)error;
 
+- (void)deviceAttestationAskForRemotePAAForSubjectKeyID:(NSData *)skid subject:(NSData *)subject completion:(void (^)(NSData *paaData))completion;
+
 @end
 
 NS_ASSUME_NONNULL_END

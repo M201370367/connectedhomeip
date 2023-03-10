@@ -25,10 +25,24 @@ CHIP_ERROR MTRAttestationTrustStoreBridge::GetProductAttestationAuthorityCert(
 
     size_t paaIdx;
     chip::ByteSpan candidate;
+    
+    //add the paa from remote
+    NSMutableArray *certs = [NSMutableArray arrayWithArray:mPaaCerts];
+    if (!mOfficialPAA->empty()) {
+        chip::ByteSpan *cert = reinterpret_cast<chip::ByteSpan *>(mOfficialPAA);
+        size_t certSize = mNumOfficialPAA;
+        for (NSInteger index = 0; index < certSize; index++) {
+            candidate = cert[index];
+            NSData *data = AsData(candidate);
+            if (data.length) {
+                [certs addObject:data];
+            }
+        }
+    }
 
-    for (paaIdx = 0; paaIdx < mPaaCerts.count; ++paaIdx) {
+    for (paaIdx = 0; paaIdx < certs.count; ++paaIdx) {
         uint8_t skidBuf[chip::Crypto::kSubjectKeyIdentifierLength] = { 0 };
-        candidate = AsByteSpan(mPaaCerts[paaIdx]);
+        candidate = AsByteSpan(certs[paaIdx]);
         chip::MutableByteSpan candidateSkidSpan { skidBuf };
         VerifyOrReturnError(
             CHIP_NO_ERROR == chip::Crypto::ExtractSKIDFromX509Cert(candidate, candidateSkidSpan), CHIP_ERROR_INTERNAL);

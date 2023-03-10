@@ -19,6 +19,8 @@
 #import "MTRDeviceAttestationDelegate_Internal.h"
 #import "MTRError_Internal.h"
 #import "NSDataSpanConversion.h"
+#include <controller/CHIPDeviceController.h>
+#include <crypto/CHIPCryptoPAL.h>
 
 void MTRDeviceAttestationDelegateBridge::OnDeviceAttestationCompleted(chip::Controller::DeviceCommissioner * deviceCommissioner,
     chip::DeviceProxy * device, const chip::Credentials::DeviceAttestationVerifier::AttestationDeviceInfo & info,
@@ -57,6 +59,41 @@ void MTRDeviceAttestationDelegateBridge::OnDeviceAttestationCompleted(chip::Cont
                 NSError * error = [MTRError errorForCHIPErrorCode:CHIP_ERROR_INTEGRITY_CHECK_FAILED];
                 [strongDelegate deviceAttestationFailedForController:mDeviceController device:device error:error];
             }
+        }
+    });
+}
+
+
+void MTRDeviceAttestationDelegateBridge::getRemotePAAThenContinueVerify(chip::Controller::DeviceCommissioner * deviceCommissioner, chip::Credentials::DeviceAttestationVerifier::AttestationInfo & info) {
+    chip::Credentials::DeviceAttestationVerifier::AttestationInfo theInfo = info;
+    dispatch_async(mQueue, ^{
+        id<MTRDeviceAttestationDelegate> strongDelegate = mDeviceAttestationDelegate;
+        if ([strongDelegate respondsToSelector:@selector(deviceAttestationAskForRemotePAAForSubjectKeyID:subject:completion:)]) {
+            uint8_t akidBuf[chip::Crypto::kAuthorityKeyIdentifierLength];
+            NSData *subjectKeyID;
+            chip::MutableByteSpan akid(akidBuf);
+            if (chip::ExtractAKIDFromX509Cert(theInfo.paiDerBuffer, akid) == CHIP_NO_ERROR) {
+                subjectKeyID = [AsData(akid) copy];
+            }
+            
+            uint8_t subjectBuf[100]; //max 68?
+            NSData *subjectData;
+            chip::MutableByteSpan subject(subjectBuf);
+            if (chip::ExtractIssuerFromX509Cert(theInfo.paiDerBuffer, subject) == CHIP_NO_ERROR) {
+                subjectData = [AsData(subject) copy];
+            }
+            
+            [strongDelegate deviceAttestationAskForRemotePAAForSubjectKeyID:subjectKeyID subject:subjectData completion:^(NSData * _Nonnull paaData) {
+                //always should use USE_CHOOSE_GOON_COMMISSION_WITH_PAA, because the result with paa check will delegate on OnDeviceAttestationCompleted method
+                dispatch_async(mQueue, ^{
+                    chip::ByteSpan paaCert = AsByteSpan(paaData);
+                    deviceCommissioner->ValidateAttestationInfo(theInfo, chip::Controller::USE_CHOOSE_GOON_COMMISSION_WITH_PAA, paaCert);
+                });
+            }];
+        } else {
+            //always should use USE_CHOOSE_GOON_COMMISSION_WITH_PAA, because the result with paa check will delegate on OnDeviceAttestationCompleted method
+            chip::ByteSpan paaCertEmpty;
+            deviceCommissioner->ValidateAttestationInfo(theInfo, chip::Controller::USE_CHOOSE_GOON_COMMISSION_WITH_PAA, paaCertEmpty);
         }
     });
 }
