@@ -39,10 +39,17 @@ void MTRDeviceAttestationDelegateBridge::OnDeviceAttestationCompleted(chip::Cont
                 NSData * dacData = AsData(info.dacDerBuffer());
                 NSData * paiData = AsData(info.paiDerBuffer());
                 NSData * cdData = info.cdBuffer().HasValue() ? AsData(info.cdBuffer().Value()) : nil;
+                chip::Crypto::P256PublicKey pubKey;
+                NSData *publicKey = nil;
+                if (chip::ExtractPubkeyFromX509Cert(info.paiDerBuffer(), pubKey) == CHIP_NO_ERROR) {
+                    publicKey = [[NSData alloc] initWithBytes:pubKey.Bytes() length:pubKey.Length()];
+                }
+                
                 MTRDeviceAttestationDeviceInfo * deviceInfo =
                     [[MTRDeviceAttestationDeviceInfo alloc] initWithDACCertificate:dacData
                                                                  dacPAICertificate:paiData
-                                                            certificateDeclaration:cdData];
+                                                            certificateDeclaration:cdData
+                                                                         publicKey:publicKey];
                 NSError * error = (attestationResult == chip::Credentials::AttestationVerificationResult::kSuccess)
                     ? nil
                     : [MTRError errorForCHIPErrorCode:CHIP_ERROR_INTEGRITY_CHECK_FAILED];

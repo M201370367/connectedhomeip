@@ -19,14 +19,16 @@
 #import <MTRDeviceAttestationDelegate_Internal.h>
 
 @implementation MTRDeviceAttestationDeviceInfo
+
 - (instancetype)initWithDACCertificate:(NSData *)dacCertificate
                      dacPAICertificate:(NSData *)dacPAICertificate
                 certificateDeclaration:(NSData *)certificateDeclaration
-{
+                             publicKey:(NSData *)pubKey {
     if (self = [super init]) {
         _dacCertificate = [dacCertificate copy];
         _dacPAICertificate = [dacPAICertificate copy];
         _certificateDeclaration = [certificateDeclaration copy];
+        _publicKey = [pubKey copy];
     }
     return self;
 }

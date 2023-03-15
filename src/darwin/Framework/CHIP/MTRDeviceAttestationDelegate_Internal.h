@@ -22,7 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MTRDeviceAttestationDeviceInfo ()
 - (instancetype)initWithDACCertificate:(NSData *)dacCertificate
                      dacPAICertificate:(NSData *)dacPAICertificate
-                certificateDeclaration:(NSData *)certificateDeclaration;
+                certificateDeclaration:(NSData *)certificateDeclaration
+                             publicKey:(NSData *)pubKey;
 @end
 
 NS_ASSUME_NONNULL_END

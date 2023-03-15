@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSData * dacCertificate;
 @property (nonatomic, readonly) NSData * dacPAICertificate;
 @property (nonatomic, readonly, nullable) NSData * certificateDeclaration;
+@property (nonatomic, readonly, nullable) NSData * publicKey;
 @end
 
 /**
