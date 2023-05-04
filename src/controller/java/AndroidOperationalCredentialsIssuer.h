@@ -99,7 +99,7 @@ public:
                                                MutableByteSpan & noc);
 
     void setDeviceController(DeviceCommissioner * deviceCommissioner) { mController = deviceCommissioner; }
-    void getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo & info, ByteSpan paiCert) override;
+    void getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo & info, ByteSpan paiCert, ByteSpan dacCert) override;
     void doDACWithNoCert(uint16_t useChoose, ByteSpan paaCert);
 
 private:

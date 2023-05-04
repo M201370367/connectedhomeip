@@ -15,7 +15,7 @@ open class GenericChipDeviceListener : ChipDeviceController.CompletionListener {
     // No op
   }
 
-  override fun getRemotePAA(byteArray: ByteArray) {
+  override fun getRemotePAA(byteArray: ByteArray, byteArray2: ByteArray) {
     // No op
   }
 

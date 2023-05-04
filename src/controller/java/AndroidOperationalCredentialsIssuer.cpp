@@ -287,26 +287,29 @@ void AndroidOperationalCredentialsIssuer::doJavaCertPrint(const char* bytes, Mut
     env->CallVoidMethod(mJavaObjectRef, method, debugText, javaArr);
 }
 
-void AndroidOperationalCredentialsIssuer::getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo &info, ByteSpan paiCert) {
+void AndroidOperationalCredentialsIssuer::getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo &info, ByteSpan paiCert, ByteSpan dacCert) {
     mAttestationInfo = &info;
     JNIEnv * env   = JniReferences::GetInstance().GetEnvForCurrentThread();
 
     jbyteArray javaArr;
-    JniReferences::GetInstance().GetEnvForCurrentThread()->ExceptionClear();
     JniReferences::GetInstance().N2J_ByteArray(JniReferences::GetInstance().GetEnvForCurrentThread(), paiCert.data(),
                                                paiCert.size(), javaArr);
 
+    jbyteArray javaArrDAC;
+    JniReferences::GetInstance().N2J_ByteArray(JniReferences::GetInstance().GetEnvForCurrentThread(), dacCert.data(),
+                                               dacCert.size(), javaArrDAC);
+
     jmethodID method;
     ChipError err            = JniReferences::GetInstance().FindMethod(JniReferences::GetInstance().GetEnvForCurrentThread(), mJavaObjectRef,
-                                                                       "getRemotePAA", "([B)V", &method);
+                                                                       "getRemotePAA", "([B[B)V", &method);
     if (err != CHIP_NO_ERROR)
     {
         ChipLogProgress(Controller, "Error invoking getRemotePAA 0: %" CHIP_ERROR_FORMAT, err.Format());
     }
-    ChipLogProgress(Controller, "CallVoidMethod getRemotePAA start");
+    ChipLogProgress(Controller, "CallVoidMethod getRemotePAA start 000");
 
-    env->CallVoidMethod(mJavaObjectRef, method, javaArr);
-    ChipLogProgress(Controller, "CallVoidMethod getRemotePAA end");
+    env->CallVoidMethod(mJavaObjectRef, method, javaArr, javaArrDAC);
+    ChipLogProgress(Controller, "CallVoidMethod getRemotePAA end 000");
 }
 
 void AndroidOperationalCredentialsIssuer::doDACWithNoCert(uint16_t useChoose, ByteSpan paaCert) {

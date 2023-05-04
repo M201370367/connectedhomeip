@@ -66,7 +66,7 @@ class OpCredClientFragment : Fragment() {
     override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
     }
 
-    override fun getRemotePAA(byteArray: ByteArray) {
+    override fun getRemotePAA(byteArray: ByteArray, byteArray2: ByteArray) {
     }
   }
 

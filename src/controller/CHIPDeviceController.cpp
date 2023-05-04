@@ -1121,9 +1121,9 @@ CHIP_ERROR DeviceCommissioner::getRemotePAA(Credentials::DeviceAttestationVerifi
     MATTER_TRACE_EVENT_SCOPE("ValidateAttestationInfo", "getRemotePAA");
     VerifyOrReturnError(mState == State::Initialized, CHIP_ERROR_INCORRECT_STATE);
     VerifyOrReturnError(mOperationalCredentialsDelegate != nullptr, CHIP_ERROR_INCORRECT_STATE);
-    #if USE_ANDROID_PLATFORM
-        mOperationalCredentialsDelegate->getRemotePAA(info, info.paiDerBuffer);
-    #else
+    if (useAndroidPlatform_) {
+        mOperationalCredentialsDelegate->getRemotePAA(info, info.paiDerBuffer, info.dacDerBuffer);
+    } else {
         auto & params = mDefaultCommissioner->GetCommissioningParameters();
         Credentials::DeviceAttestationDelegate * deviceAttestationDelegate = params.GetDeviceAttestationDelegate();
         if (deviceAttestationDelegate) {
@@ -1132,7 +1132,7 @@ CHIP_ERROR DeviceCommissioner::getRemotePAA(Credentials::DeviceAttestationVerifi
         } else {
             ValidateAttestationInfo(info);
         }
-    #endif
+    }
 
     return CHIP_NO_ERROR;
 }

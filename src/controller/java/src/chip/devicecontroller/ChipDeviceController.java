@@ -314,11 +314,12 @@ public class ChipDeviceController {
     }
   }
 
-  public void getRemotePAA(byte[] paicert) {
+  public void getRemotePAA(byte[] paicert, byte[] dacCert) {
     Log.i(TAG, "getRemotePAA");
     javaPrintCsr("pai-cert", paicert);
+    javaPrintCsr("dac-cert", dacCert);
     if (completionListener != null) {
-      completionListener.getRemotePAA(paicert);
+      completionListener.getRemotePAA(paicert, dacCert);
     }
   }
 
@@ -876,7 +877,7 @@ public class ChipDeviceController {
     /** Notifies the completion of pairing. */
     void onPairingComplete(int errorCode);
 
-    void getRemotePAA(byte[] paicert);
+    void getRemotePAA(byte[] paicert, byte[] dacCert);
 
     /** Notifies the deletion of pairing session. */
     void onPairingDeleted(int errorCode);

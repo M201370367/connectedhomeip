@@ -161,7 +161,7 @@ class OnOffClientFragment : Fragment() {
       Log.d(TAG, "onError: $error")
     }
 
-    override fun getRemotePAA(byteArray: ByteArray) {
+    override fun getRemotePAA(byteArray: ByteArray, byteArray2: ByteArray) {
     }
   }
 

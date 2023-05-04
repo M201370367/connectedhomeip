@@ -214,10 +214,10 @@ class DeviceProvisioningFragment : Fragment() {
 
     }
 
-    override fun getRemotePAA(byteArray: ByteArray) {
+    override fun getRemotePAA(byteArray: ByteArray, byteArray2: ByteArray) {
       requireActivity().runOnUiThread {
         Log.d(TAG, "getRemotePAA")
-        deviceController?.doDACWithNoCert(3, null)
+        deviceController?.doDACWithNoCert(2, null)
       }
 
     }
