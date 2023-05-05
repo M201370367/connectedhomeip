@@ -28,7 +28,7 @@ CHIP_ERROR MTRAttestationTrustStoreBridge::GetProductAttestationAuthorityCert(
     
     //add the paa from remote
     NSMutableArray *certs = [NSMutableArray arrayWithArray:mPaaCerts];
-    if (!mOfficialPAA->empty()) {
+    if (mOfficialPAA && !mOfficialPAA->empty()) {
         chip::ByteSpan *cert = reinterpret_cast<chip::ByteSpan *>(mOfficialPAA);
         size_t certSize = mNumOfficialPAA;
         for (NSInteger index = 0; index < certSize; index++) {
