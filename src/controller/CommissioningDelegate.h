@@ -309,7 +309,7 @@ public:
     }
     CommissioningParameters & SetAdminSubject(const NodeId adminSubject)
     {
-        ChipLogProgress(Controller, ".h SetAdminSubject: %llu", adminSubject);
+        //ChipLogProgress(Controller, ".h SetAdminSubject: %llu", adminSubject);
         mAdminSubject.SetValue(adminSubject);
         return *this;
     }

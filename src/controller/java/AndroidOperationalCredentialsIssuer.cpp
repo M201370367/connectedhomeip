@@ -195,7 +195,7 @@ CHIP_ERROR AndroidOperationalCredentialsIssuer::GenerateNOCChainAfterValidation(
     CHIP_ERROR err      = CHIP_NO_ERROR;
     PERSISTENT_KEY_OP(fabricId, kOperationalCredentialsRootCertificateStorage, key,
                       err = mStorage->SyncGetKeyValue(key, rcac.data(), rcacBufLen));
-    ChipLogProgress(Controller, "mIssuerId: %u, fabricId: %llu, nodeId: %llu ", mIssuerId, fabricId, nodeId);
+    ChipLogProgress(Controller, "mIssuerId: %u, fabricId: %" PRIu64 ", nodeId: %" PRIu64 " ", mIssuerId, fabricId, nodeId);
     ByteSpan pkBS(pubkey.ConstBytes(), pubkey.Length());
     ChipLogProgress(Controller, "pubkey:");
     ChipLogByteSpan(Controller, pkBS);
@@ -207,7 +207,7 @@ CHIP_ERROR AndroidOperationalCredentialsIssuer::GenerateNOCChainAfterValidation(
         rcac.reduce_size(rcacBufLen);
         ReturnErrorOnFailure(ExtractSubjectDNFromX509Cert(rcac, rcac_dn));
         ReturnErrorOnFailure(rcac_dn.GetCertChipId(rcacId));
-        ChipLogProgress(Controller, "rcacId: %llu ", rcacId);
+        ChipLogProgress(Controller, "rcacId: %" PRIu64 " ", rcacId);
         //VerifyOrReturnError(rcacId == mIssuerId, CHIP_ERROR_INTERNAL);
     }
     // If root certificate not found in the storage, generate new root certificate.
@@ -245,7 +245,7 @@ CHIP_ERROR AndroidOperationalCredentialsIssuer::GenerateNOCChainAfterValidation(
         icac.reduce_size(icacBufLen);
         ReturnErrorOnFailure(ExtractSubjectDNFromX509Cert(icac, icac_dn));
         ReturnErrorOnFailure(icac_dn.GetCertChipId(icacId));
-        ChipLogProgress(Controller, "icacId: %llu ", icacId);
+        ChipLogProgress(Controller, "icacId: %" PRIu64 " ", icacId);
         mIssuerId = icacId;
         //VerifyOrReturnError(icacId == mIssuerId, CHIP_ERROR_INTERNAL);
     }

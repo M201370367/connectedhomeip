@@ -1334,7 +1334,7 @@ CHIP_ERROR DeviceCommissioner::SendOperationalCertificate(DeviceProxy * device, 
     ChipLogByteSpan(Controller, nocCertBuf);
     ChipLogProgress(Controller, "SendOperationalCertificate ipk:");
     ChipLogByteSpan(Controller, ipk);
-    ChipLogProgress(Controller, "SendOperationalCertificate adminSubject: %llu", adminSubject);
+    //ChipLogProgress(Controller, "SendOperationalCertificate adminSubject: %llu", adminSubject);
     ChipLogProgress(Controller, "SendOperationalCertificate vendor id: %u", mVendorId);
 
     ReturnErrorOnFailure(SendCommand<OperationalCredentialsCluster>(device, request, OnOperationalCertificateAddResponse,

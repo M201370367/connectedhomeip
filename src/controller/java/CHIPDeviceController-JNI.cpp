@@ -354,7 +354,7 @@ JNI_METHOD(jlong, newDeviceController)(JNIEnv * env, jobject self, jobject contr
             // if there is a valid adminSubject in the ControllerParams, then remember it
             CommissioningParameters commissioningParams = wrapper->GetCommissioningParameters();
             commissioningParams.SetAdminSubject(adminSubject);
-            ChipLogProgress(Controller, "JNI SetAdminSubject: %llu", adminSubject);
+            //ChipLogProgress(Controller, "JNI SetAdminSubject: %llu", adminSubject);
             err = wrapper->UpdateCommissioningParameters(commissioningParams);
             if (err != CHIP_NO_ERROR)
             {
