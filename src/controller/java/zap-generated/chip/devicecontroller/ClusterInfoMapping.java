@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import chip.devicecontroller.ClusterReadMapping;
+import chip.devicecontroller.ClusterWriteMapping;
 
 public class ClusterInfoMapping {
 
