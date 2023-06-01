@@ -15,6 +15,10 @@ open class GenericChipDeviceListener : ChipDeviceController.CompletionListener {
     // No op
   }
 
+  override fun getRemotePAA(byteArray: ByteArray, byteArray2: ByteArray) {
+    // No op
+  }
+
   override fun onPairingDeleted(code: Int) {
     // No op
   }
@@ -45,5 +49,9 @@ open class GenericChipDeviceListener : ChipDeviceController.CompletionListener {
 
   override fun onOpCSRGenerationComplete(csr: ByteArray) {
     // No op
+  }
+
+  override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
+    TODO("Not yet implemented")
   }
 }

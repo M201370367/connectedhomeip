@@ -62,6 +62,7 @@ public:
                                               const DeviceAttestationVerifier::AttestationDeviceInfo & info,
                                               AttestationVerificationResult attestationResult) = 0;
 
+
     /**
      * @brief
      *   Override this method to return whether the attestation delegate wants the commissioner to wait for a

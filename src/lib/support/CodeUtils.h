@@ -396,7 +396,7 @@ constexpr inline const _T & max(const _T & a, const _T & b)
  *      SuccessOrExit(err);
  *
  *      err = TrySomethingElse();
- *      SuccessOrExit(err);
+ *      SuccessOrExit(err);err
  *
  *  exit:
  *      return err;

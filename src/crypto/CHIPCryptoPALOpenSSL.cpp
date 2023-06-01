@@ -1960,6 +1960,37 @@ exit:
 
 } // namespace
 
+CHIP_ERROR ExtractIssuerFromX509Cert(const ByteSpan & certificate, MutableByteSpan & issuer)
+{
+     CHIP_ERROR err                       = CHIP_NO_ERROR;
+     X509 * x509certificate               = nullptr;
+     const unsigned char * pCertificate   = certificate.data();
+     const unsigned char ** ppCertificate = &pCertificate;
+     const unsigned char * issuerBuffer  = nullptr;
+     size_t issuerBufferLength = 0;
+     X509_NAME *x509Issuer = nullptr;
+ 
+     VerifyOrReturnError(!certificate.empty() && CanCastTo<long>(certificate.size()), CHIP_ERROR_INVALID_ARGUMENT);
+ 
+     x509certificate = d2i_X509(nullptr, ppCertificate, static_cast<long>(certificate.size()));
+     VerifyOrExit(x509certificate != nullptr, err = CHIP_ERROR_NO_MEMORY);
+ 
+     x509Issuer = X509_get_issuer_name(x509certificate);
+     VerifyOrExit(x509Issuer != nullptr, err = CHIP_ERROR_NO_MEMORY);
+     X509_NAME_get0_der(x509Issuer, &issuerBuffer, &issuerBufferLength);
+     VerifyOrExit(issuerBuffer != nullptr, err = CHIP_ERROR_INVALID_ARGUMENT);
+     VerifyOrExit(issuerBufferLength <= issuer.size(), err = CHIP_ERROR_BUFFER_TOO_SMALL);
+ 
+     memcpy(issuer.data(), issuerBuffer, issuerBufferLength);
+ 
+     issuer.reduce_size(issuerBufferLength);
+ 
+ exit:
+     X509_free(x509certificate);
+
+     return err;
+ }
+ 
 CHIP_ERROR ExtractSKIDFromX509Cert(const ByteSpan & certificate, MutableByteSpan & skid)
 {
     return ExtractKIDFromX509Cert(true, certificate, skid);

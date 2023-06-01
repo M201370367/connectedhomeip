@@ -82,6 +82,10 @@ namespace Controller {
 using namespace chip::Protocols::UserDirectedCommissioning;
 
 constexpr uint16_t kNumMaxActiveDevices = CHIP_CONFIG_CONTROLLER_MAX_ACTIVE_DEVICES;
+constexpr uint16_t USE_CHOOSE_CANCEL = 1;
+constexpr uint16_t USE_CHOOSE_GOON_COMMISSION_NO_PAA = 2;
+constexpr uint16_t USE_CHOOSE_GOON_COMMISSION_WITH_PAA = 3;
+
 
 // Raw functions for cluster callbacks
 void OnBasicFailure(void * context, CHIP_ERROR err);
@@ -553,6 +557,11 @@ public:
     void PerformCommissioningStep(DeviceProxy * device, CommissioningStage step, CommissioningParameters & params,
                                   CommissioningDelegate * delegate, EndpointId endpoint, Optional<System::Clock::Timeout> timeout);
 
+    CHIP_ERROR getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo & info);
+    void SetUseAndroidPlatform() {
+        useAndroidPlatform_ = true;
+    }
+    CHIP_ERROR ValidateAttestationInfo(const Credentials::DeviceAttestationVerifier::AttestationInfo & info, uint16_t useChoose, ByteSpan paaCert);
     /**
      * @brief
      *   This function validates the Attestation Information sent by the device.
@@ -944,6 +953,7 @@ private:
     Credentials::AttestationVerificationResult mAttestationResult;
     Platform::UniquePtr<Credentials::DeviceAttestationVerifier::AttestationDeviceInfo> mAttestationDeviceInfo;
     Credentials::DeviceAttestationVerifier * mDeviceAttestationVerifier = nullptr;
+    bool useAndroidPlatform_ = false;
 };
 
 } // namespace Controller

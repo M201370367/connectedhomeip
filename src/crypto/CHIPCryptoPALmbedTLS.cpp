@@ -819,6 +819,7 @@ P256Keypair::~P256Keypair()
 
 CHIP_ERROR P256Keypair::NewCertificateSigningRequest(uint8_t * out_csr, size_t & csr_length) const
 {
+    ChipLogProgress(Controller, "mbedtls NewCertificateSigningRequest enter");
 #if defined(MBEDTLS_X509_CSR_WRITE_C)
     CHIP_ERROR error = CHIP_NO_ERROR;
     int result       = 0;

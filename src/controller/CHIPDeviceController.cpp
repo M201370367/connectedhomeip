@@ -1050,6 +1050,7 @@ void DeviceCommissioner::OnAttestationResponse(void * context,
 void DeviceCommissioner::OnDeviceAttestationInformationVerification(
     void * context, const Credentials::DeviceAttestationVerifier::AttestationInfo & info, AttestationVerificationResult result)
 {
+    ChipLogProgress(Controller, "OnDeviceAttestationInformationVerification result: %hu", result);
     MATTER_TRACE_EVENT_SCOPE("OnDeviceAttestationInformationVerification", "DeviceCommissioner");
     DeviceCommissioner * commissioner = reinterpret_cast<DeviceCommissioner *>(context);
 
@@ -1216,12 +1217,49 @@ void DeviceCommissioner::ExtendArmFailSafeForDeviceAttestation(const Credentials
     }
 }
 
+CHIP_ERROR DeviceCommissioner::getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo &info) {
+    MATTER_TRACE_EVENT_SCOPE("ValidateAttestationInfo", "getRemotePAA");
+    VerifyOrReturnError(mState == State::Initialized, CHIP_ERROR_INCORRECT_STATE);
+    VerifyOrReturnError(mOperationalCredentialsDelegate != nullptr, CHIP_ERROR_INCORRECT_STATE);
+    if (useAndroidPlatform_) {
+        mOperationalCredentialsDelegate->getRemotePAA(info, info.paiDerBuffer, info.dacDerBuffer);
+    }
+
+    return CHIP_NO_ERROR;
+}
+
+CHIP_ERROR DeviceCommissioner::ValidateAttestationInfo(const Credentials::DeviceAttestationVerifier::AttestationInfo & info, uint16_t useChoose, ByteSpan paaCert) {
+    ChipLogProgress(Controller, "ValidateAttestationInfo use choose: %u", useChoose);
+
+    if (useChoose == USE_CHOOSE_CANCEL) {
+        AttestationVerificationResult attestationError = AttestationVerificationResult::kPaaNotFound;
+        (&mDeviceAttestationInformationVerificationCallback)->mCall((&mDeviceAttestationInformationVerificationCallback)->mContext, info, attestationError);
+    } else if (useChoose == USE_CHOOSE_GOON_COMMISSION_NO_PAA){
+        //ValidateAttestationInfo(info);
+        AttestationVerificationResult attestationError = AttestationVerificationResult::kSuccess;
+        (&mDeviceAttestationInformationVerificationCallback)->mCall((&mDeviceAttestationInformationVerificationCallback)->mContext, info, attestationError);
+    } else {
+        AttestationTrustStore * attestationTrustStore = mDeviceAttestationVerifier->GetPaaRootStore();
+        if (attestationTrustStore != nullptr) {
+            ByteSpan paaRoots[] = {
+                    paaCert,
+            };
+            attestationTrustStore->SetOfficialPAACert(&paaRoots[0], ArraySize(paaRoots));
+            ValidateAttestationInfo(info);
+        } else {
+            ChipLogProgress(Controller, "ValidateAttestationInfo use choose: %u, attestationTrustStore is null", useChoose);
+        }
+    }
+    return CHIP_NO_ERROR;
+}
+
 CHIP_ERROR DeviceCommissioner::ValidateAttestationInfo(const Credentials::DeviceAttestationVerifier::AttestationInfo & info)
 {
+    ChipLogProgress(Controller, "ValidateAttestationInfo pid: %u", info.productId);
+
     MATTER_TRACE_EVENT_SCOPE("ValidateAttestationInfo", "DeviceCommissioner");
     VerifyOrReturnError(mState == State::Initialized, CHIP_ERROR_INCORRECT_STATE);
     VerifyOrReturnError(mDeviceAttestationVerifier != nullptr, CHIP_ERROR_INCORRECT_STATE);
-
     mDeviceAttestationVerifier->VerifyAttestationInformation(info, &mDeviceAttestationInformationVerificationCallback);
 
     // TODO: Validate Firmware Information
@@ -2388,7 +2426,7 @@ void DeviceCommissioner::PerformCommissioningStep(DeviceProxy * proxy, Commissio
             params.GetAttestationSignature().Value(), params.GetPAI().Value(), params.GetDAC().Value(),
             params.GetAttestationNonce().Value(), params.GetRemoteVendorId().Value(), params.GetRemoteProductId().Value());
 
-        if (ValidateAttestationInfo(info) != CHIP_NO_ERROR)
+        if (getRemotePAA(info) != CHIP_NO_ERROR)
         {
             ChipLogError(Controller, "Error validating attestation information");
             CommissioningStageComplete(CHIP_ERROR_INVALID_ARGUMENT);

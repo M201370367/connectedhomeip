@@ -88,7 +88,11 @@ CHIP_ERROR AutoCommissioner::SetCommissioningParameters(const CommissioningParam
          IsUnsafeSpan(params.GetPAI(), mParams.GetPAI()) || IsUnsafeSpan(params.GetDAC(), mParams.GetDAC()));
 
     mParams = params;
-
+    if (params.GetAdminSubject().HasValue())
+    {
+        ChipLogProgress(Controller, "Setting adminSubject from parameters: %" PRIu64 "", params.GetAdminSubject().Value());
+        mParams.SetAdminSubject(params.GetAdminSubject().Value());
+    }
     if (haveMaybeDanglingBufferPointers)
     {
         mParams.ClearExternalBufferDependentValues();

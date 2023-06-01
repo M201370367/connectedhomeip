@@ -24,11 +24,23 @@ import android.util.Log;
 /** Android implementation of a key/value store using SharedPreferences. */
 public class PreferencesKeyValueStoreManager implements KeyValueStoreManager {
   private final String TAG = KeyValueStoreManager.class.getSimpleName();
-  private final String PREFERENCE_FILE_KEY = "chip.platform.KeyValueStore";
+  private String mChipSp = "chip.platform.KeyValueStore";
   private SharedPreferences preferences;
 
+  private final static String  kOperationalCredentialsIssuerKeypairStorage   = "AndroidDeviceControllerKey";
+  public String  kOperationalCredentialsRootCertificateStorage = "AndroidCARootCert";
+  public String  kOperationalCredentialsICACStorage = "AndroidICAC";
+
+  @Deprecated
   public PreferencesKeyValueStoreManager(Context context) {
-    preferences = context.getSharedPreferences(PREFERENCE_FILE_KEY, Context.MODE_PRIVATE);
+    preferences = context.getSharedPreferences(mChipSp, Context.MODE_PRIVATE);
+  }
+
+  public PreferencesKeyValueStoreManager(Context context, String spSuffix, String fabric) {
+    mChipSp = mChipSp + spSuffix;
+    kOperationalCredentialsRootCertificateStorage = kOperationalCredentialsRootCertificateStorage + fabric;
+    kOperationalCredentialsICACStorage = kOperationalCredentialsICACStorage + fabric;
+    preferences = context.getSharedPreferences(mChipSp, Context.MODE_PRIVATE);
   }
 
   @Override
@@ -37,6 +49,7 @@ public class PreferencesKeyValueStoreManager implements KeyValueStoreManager {
     if (value == null) {
       Log.d(TAG, "Key '" + key + "' not found in shared preferences");
     }
+    Log.d(TAG, "Key '" + key + "' : " + value);
     return value;
   }
 
@@ -48,5 +61,35 @@ public class PreferencesKeyValueStoreManager implements KeyValueStoreManager {
   @Override
   public void delete(String key) {
     preferences.edit().remove(key).apply();
+  }
+
+  public boolean isIssueKeyExist() {
+    String value = preferences.getString(kOperationalCredentialsIssuerKeypairStorage, null);
+    if (value == null) {
+      Log.d(TAG, "Key '" + kOperationalCredentialsIssuerKeypairStorage + "' not found in shared preferences");
+      return false;
+    }
+    Log.d(TAG, "Key '" + kOperationalCredentialsIssuerKeypairStorage + "' " + value);
+    return true;
+  }
+
+  public boolean isRCACExist() {
+    String value = preferences.getString(kOperationalCredentialsRootCertificateStorage, null);
+    if (value == null) {
+      Log.d(TAG, "Key '" + kOperationalCredentialsRootCertificateStorage + "' not found in shared preferences");
+      return false;
+    }
+    Log.d(TAG, "Key '" + kOperationalCredentialsRootCertificateStorage + "' " + value);
+    return true;
+  }
+
+  public boolean isICACExist() {
+    String value = preferences.getString(kOperationalCredentialsICACStorage, null);
+    if (value == null) {
+      Log.d(TAG, "Key '" + kOperationalCredentialsICACStorage + "' not found in shared preferences");
+      return false;
+    }
+    Log.d(TAG, "Key '" + kOperationalCredentialsICACStorage + "' " + value);
+    return true;
   }
 }

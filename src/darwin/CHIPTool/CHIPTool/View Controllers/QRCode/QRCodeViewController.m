@@ -24,6 +24,7 @@
 #import <Matter/MTRDeviceAttestationDelegate.h>
 #import <Matter/MTRSetupPayload.h>
 #import <Matter/Matter.h>
+#import <Matter/MTRDeviceControllerFactory.h>
 
 // system imports
 #import <AVFoundation/AVFoundation.h>
@@ -415,6 +416,13 @@
 
     [self manualCodeInitialState];
     [self qrCodeInitialState];
+    
+    NSData *data = [[MTRDeviceControllerFactory sharedInstance] csrDataForFabricID:1];
+    NSString *base64String = [data base64EncodedStringWithOptions:kNilOptions];
+    NSLog(@"%@",base64String);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self scannedQRCode:@"MT:YNJV7VSC00KA0648G00"];
+    });
 }
 
 // MARK: NFCNDEFReaderSessionDelegate

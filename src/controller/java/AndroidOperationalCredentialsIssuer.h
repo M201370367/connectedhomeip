@@ -39,15 +39,18 @@
 #include <lib/support/Span.h>
 
 #include <jni.h>
-
+using ChipDeviceControllerPtr = std::unique_ptr<chip::Controller::DeviceCommissioner>;
 namespace chip {
 namespace Controller {
 
 class DLL_EXPORT AndroidOperationalCredentialsIssuer : public OperationalCredentialsDelegate
 {
 public:
-    virtual ~AndroidOperationalCredentialsIssuer() {}
+    virtual ~AndroidOperationalCredentialsIssuer() {
+        ChipLogProgress(Controller, "~AndroidOperationalCredentialsIssuer()");
+    }
 
+    void doJavaCertPrint(const char* bytes, MutableByteSpan & cert);
     CHIP_ERROR GenerateNOCChain(const ByteSpan & csrElements, const ByteSpan & csrNonce, const ByteSpan & attestationSignature,
                                 const ByteSpan & attestationChallenge, const ByteSpan & DAC, const ByteSpan & PAI,
                                 Callback::Callback<OnNOCChainGeneration> * onCompletion) override;
@@ -68,6 +71,7 @@ public:
 
     void SetFabricIdForNextNOCRequest(FabricId fabricId) override { mNextFabricId = fabricId; }
 
+    CHIP_ERROR getPhoneCertCSR(PersistentStorageDelegate & storage, jobject javaObjectRef);
     /**
      * @brief Initialize the issuer with the keypair in the storage.
      *        If the storage doesn't have one, it'll create one, and it to the storage.
@@ -79,6 +83,7 @@ public:
      * @return Returns a CHIP_ERROR on error, CHIP_NO_ERROR otherwise
      **/
     CHIP_ERROR Initialize(PersistentStorageDelegate & storage, AutoCommissioner * autoCommissioner, jobject javaObjectRef);
+    CHIP_ERROR doJavaPrintCert(const char * methodName, MutableByteSpan & rcac);
 
     void SetIssuerId(uint32_t id) { mIssuerId = id; }
 
@@ -94,6 +99,10 @@ public:
     CHIP_ERROR GenerateNOCChainAfterValidation(NodeId nodeId, FabricId fabricId, const CATValues & cats,
                                                const Crypto::P256PublicKey & pubkey, MutableByteSpan & rcac, MutableByteSpan & icac,
                                                MutableByteSpan & noc);
+
+    void setDeviceController(DeviceCommissioner * deviceCommissioner) { mController = deviceCommissioner; }
+    void getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo & info, ByteSpan paiCert, ByteSpan dacCert) override;
+    void doDACWithNoCert(uint16_t useChoose, ByteSpan paaCert);
 
 private:
     CHIP_ERROR CallbackGenerateNOCChain(const ByteSpan & csrElements, const ByteSpan & csrNonce,
@@ -125,6 +134,9 @@ private:
 
     bool mUseJavaCallbackForNOCRequest                                  = false;
     Callback::Callback<OnNOCChainGeneration> * mOnNOCCompletionCallback = nullptr;
+
+    DeviceCommissioner * mController = nullptr;
+    Credentials::DeviceAttestationVerifier::AttestationInfo * mAttestationInfo;
 };
 
 } // namespace Controller

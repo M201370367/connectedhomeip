@@ -81,6 +81,9 @@ class MultiAdminClientFragment : Fragment() {
     override fun onError(error: Throwable?) {
       Log.d(TAG, "onError: $error")
     }
+
+    override fun getRemotePAA(byteArray: ByteArray, byteArray2: ByteArray) {
+    }
   }
 
   private suspend fun sendBasicCommissioningCommandClick() {

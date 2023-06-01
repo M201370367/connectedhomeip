@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 public final class ControllerParams {
 
   private final long fabricId;
+  private final long issuerNodeId;
   private final int udpListenPort;
   private final int controllerVendorId;
   private final int failsafeTimerSeconds;
@@ -28,6 +29,7 @@ public final class ControllerParams {
   /** @param udpListenPort the UDP listening port, or 0 to pick any available port. */
   private ControllerParams(Builder builder) {
     this.fabricId = builder.fabricId;
+    this.issuerNodeId = builder.issuerNodeId;
     this.udpListenPort = builder.udpListenPort;
     this.controllerVendorId = builder.controllerVendorId;
     this.failsafeTimerSeconds = builder.failsafeTimerSeconds;
@@ -47,6 +49,10 @@ public final class ControllerParams {
 
   public long getFabricId() {
     return fabricId;
+  }
+
+  public long getIssuerNodeId() {
+    return issuerNodeId;
   }
 
   /** Gets the UDP listening port; 0 indicates "any available port" */
@@ -132,6 +138,7 @@ public final class ControllerParams {
   /** Builder for {@link ControllerParams}. */
   public static class Builder {
     private long fabricId = 1;
+    private long issuerNodeId = 1;
     private int udpListenPort = LEGACY_GLOBAL_CHIP_PORT + 1;
     private int controllerVendorId = 0xFFFF;
     private int failsafeTimerSeconds = 30;
@@ -155,6 +162,14 @@ public final class ControllerParams {
         throw new IllegalArgumentException("fabricId must be > 0");
       }
       this.fabricId = fabricId;
+      return this;
+    }
+
+    public Builder setIssuerNodeId(long issuerNodeId) {
+      if (fabricId < 1) {
+        throw new IllegalArgumentException("fabricId must be > 0");
+      }
+      this.issuerNodeId = issuerNodeId;
       return this;
     }
 

@@ -35,6 +35,7 @@
 #include <lib/core/Optional.h>
 #include <messaging/ExchangeMgr.h>
 #include <system/SystemClock.h>
+#include <typeinfo>
 
 namespace chip {
 namespace Controller {
@@ -252,6 +253,39 @@ public:
         };
 
         return Controller::ReadAttribute<DecodableType>(&mExchangeManager, mSession.Get().Value(), mEndpoint, clusterId,
+                                                        attributeId, onSuccessCb, onFailureCb, aIsFabricFiltered);
+    }
+
+    CHIP_ERROR ReadDeviceTypeListAttribute(void * context, ReadResponseSuccessCallback<chip::app::Clusters::Descriptor::Attributes::DeviceTypeList::TypeInfo::DecodableArgType> successCb,
+                             ReadResponseFailureCallback failureCb, bool aIsFabricFiltered = true)
+    {
+        using TypeInfo = chip::app::Clusters::Descriptor::Attributes::DeviceTypeList::TypeInfo;
+        return ReadDeviceTypeListAttribute(context, TypeInfo::GetClusterId(), TypeInfo::GetAttributeId(), successCb, failureCb, aIsFabricFiltered);
+    }
+
+    CHIP_ERROR ReadDeviceTypeListAttribute(void * context, ClusterId clusterId, AttributeId attributeId,
+                             ReadResponseSuccessCallback<chip::app::Clusters::Descriptor::Attributes::DeviceTypeList::TypeInfo::DecodableArgType> successCb, ReadResponseFailureCallback failureCb,
+                             bool aIsFabricFiltered = true)
+    {
+        using TypeInfo = chip::app::Clusters::Descriptor::Attributes::DeviceTypeList::TypeInfo;
+        auto onSuccessCb = [context, successCb](const app::ConcreteAttributePath & aPath, const TypeInfo::DecodableType & aData) {
+            if (successCb != nullptr)
+            {
+                TypeInfo::DecodableType::Iterator iterator = aData.begin();
+                iterator.Next();
+                iterator.GetValue();
+                successCb(context, aData);
+            }
+        };
+
+        auto onFailureCb = [context, failureCb](const app::ConcreteAttributePath * aPath, CHIP_ERROR aError) {
+            if (failureCb != nullptr)
+            {
+                failureCb(context, aError);
+            }
+        };
+
+        return Controller::ReadAttribute<TypeInfo::DecodableType>(&mExchangeManager, mSession.Get().Value(), mEndpoint, clusterId,
                                                         attributeId, onSuccessCb, onFailureCb, aIsFabricFiltered);
     }
 

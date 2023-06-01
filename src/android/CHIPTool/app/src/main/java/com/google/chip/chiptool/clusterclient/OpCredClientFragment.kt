@@ -69,6 +69,12 @@ class OpCredClientFragment : Fragment() {
     override fun onError(error: Throwable?) {
       Log.d(TAG, "onError: $error")
     }
+
+    override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
+    }
+
+    override fun getRemotePAA(byteArray: ByteArray, byteArray2: ByteArray) {
+    }
   }
 
   private suspend fun sendReadOpCredSupportedFabricAttrClick() {

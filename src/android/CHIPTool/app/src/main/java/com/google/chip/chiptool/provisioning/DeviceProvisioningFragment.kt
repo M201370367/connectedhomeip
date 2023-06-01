@@ -18,9 +18,11 @@
 
 package com.google.chip.chiptool.provisioning
 
+import android.app.Dialog
 import android.bluetooth.BluetoothGatt
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -29,13 +31,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import chip.devicecontroller.AttestationInfo
 import chip.devicecontroller.ChipDeviceController
-import chip.devicecontroller.DeviceAttestationDelegate
+import chip.devicecontroller.ControllerParams
 import chip.devicecontroller.NetworkCredentials
-import com.google.chip.chiptool.NetworkCredentialsParcelable
+import chip.platform.PreferencesKeyValueStoreManager
 import com.google.chip.chiptool.ChipClient
 import com.google.chip.chiptool.GenericChipDeviceListener
+import com.google.chip.chiptool.NetworkCredentialsParcelable
 import com.google.chip.chiptool.R
 import com.google.chip.chiptool.bluetooth.BluetoothManager
 import com.google.chip.chiptool.setuppayloadscanner.CHIPDeviceInfo
@@ -43,7 +45,6 @@ import com.google.chip.chiptool.util.DeviceIdUtil
 import com.google.chip.chiptool.util.FragmentUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
@@ -53,19 +54,16 @@ class DeviceProvisioningFragment : Fragment() {
 
   private var gatt: BluetoothGatt? = null
 
-  private val networkCredentialsParcelable: NetworkCredentialsParcelable?
+  private val networkCredentials: NetworkCredentialsParcelable?
     get() = arguments?.getParcelable(ARG_NETWORK_CREDENTIALS)
-
-  private lateinit var deviceController: ChipDeviceController
 
   private lateinit var scope: CoroutineScope
 
-  private var dialog: AlertDialog? = null
+  private var mPreferencesKeyValueStoreManager: PreferencesKeyValueStoreManager? = null
 
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    deviceController = ChipClient.getDeviceController(requireContext())
-  }
+  private var deviceController:ChipDeviceController? = null
+
+  private var _binding: DeviceProvisioningFragment? = null
 
   override fun onCreateView(
     inflater: LayoutInflater,
@@ -74,14 +72,49 @@ class DeviceProvisioningFragment : Fragment() {
   ): View {
     scope = viewLifecycleOwner.lifecycleScope
     deviceInfo = checkNotNull(requireArguments().getParcelable(ARG_DEVICE_INFO))
-    
-    return inflater.inflate(R.layout.barcode_fragment, container, false).apply {
+
+    return inflater.inflate(R.layout.single_fragment_container, container, false).apply {
       if (savedInstanceState == null) {
-        if (deviceInfo.ipAddress != null) {
-          pairDeviceWithAddress()
-        } else {
-          startConnectingToDevice()
+        mPreferencesKeyValueStoreManager = PreferencesKeyValueStoreManager(requireContext(), "", "1")
+        Log.i(TAG, "ketExist: " + mPreferencesKeyValueStoreManager?.isIssueKeyExist + ", rootcaExist=" + mPreferencesKeyValueStoreManager?.isRCACExist + ", icacExist=" + mPreferencesKeyValueStoreManager?.isICACExist);
+
+        if (true) {
+          var rcac = "MIIBmjCCAUGgAwIBAgIGAYRR26mpMAoGCCqGSM49BAMCMCIxIDAeBgorBgEEAYKifAEEDBBDQUNBQ0FDQTAwMDAwMDAxMB4XDTIyMTEwNzExMzEwMVoXDTQyMTEwNzExMzEwMVowIjEgMB4GCisGAQQBgqJ8AQQMEENBQ0FDQUNBMDAwMDAwMDEwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASZERVkqyowUG80RKZ85TKGwNPoTPNNjR6ytJ3fWBNNjTprWHjVdczT02q8CkLh8wQbxq0Tk3a38uEk9SV98A5Xo2MwYTAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBBjAfBgNVHSMEGDAWgBQ1G9emyITHOPdk/Sjm12jwcxfqvTAdBgNVHQ4EFgQUNRvXpsiExzj3ZP0o5tdo8HMX6r0wCgYIKoZIzj0EAwIDRwAwRAIgdLWxV/gFD+lK5qsq+UEhX4xujfTm8Gd8meVI/ysjylYCIGjHRJ9SR55+gUqkPX683SBHsIj4kRv8VREmr8S4lEmy"
+          //mPreferencesKeyValueStoreManager?.set(mPreferencesKeyValueStoreManager?.kOperationalCredentialsRootCertificateStorage, Base64.encodeToString(Base64.decode(rcac, Base64.NO_WRAP), Base64.NO_WRAP))
         }
+        if (true) {
+          var icac = "MIIBnDCCAUGgAwIBAgIGAYRR26nEMAoGCCqGSM49BAMCMCIxIDAeBgorBgEEAYKifAEEDBBDQUNBQ0FDQTAwMDAwMDAxMB4XDTIyMTEwNzExMzEwMVoXDTQyMTEwNzExMzEwMVowIjEgMB4GCisGAQQBgqJ8AQMMEENBQ0FDQUNBMDAwMDAwMDMwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASyNyzm9wZE7VHKxhutZ88pY19T3SjA8A+68JOugUj/90o23WKk6IwHGZkaWsgtTsfZoaURefqSqH/eEJqZRgRIo2MwYTAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBBjAfBgNVHSMEGDAWgBQ1G9emyITHOPdk/Sjm12jwcxfqvTAdBgNVHQ4EFgQUz3Sd1Ls4pQRE4RIoWYFI2tV6JekwCgYIKoZIzj0EAwIDSQAwRgIhAP6BN+u8SfiwnSfGL/fGKpUpO4rb14GDTziiAyzAFw4uAiEAu5BTjt2p30ZgL3reQGv7lmPyDj17PWadcqutnKdwOc4="
+          //mPreferencesKeyValueStoreManager?.set(mPreferencesKeyValueStoreManager?.kOperationalCredentialsICACStorage, Base64.encodeToString(Base64.decode(icac, Base64.NO_WRAP), Base64.NO_WRAP))
+        }
+        findViewById<View>(R.id.initWhitoutCertBtn).setOnClickListener {
+          deviceController = ChipClient.getDeviceControllerWithoutInitCert(requireContext())
+        }
+
+        findViewById<View>(R.id.getCsrBtn).setOnClickListener {
+          deviceController?.getPhoneCsr(ControllerParams.newBuilder().setControllerVendorId(ChipClient.VENDOR_ID).build(), object : ChipDeviceController.ICSRHandler{
+            override fun onGet(csr: ByteArray?) {
+
+            }
+          })
+        }
+
+        findViewById<View>(R.id.initCertBtn).setOnClickListener {
+          deviceController?.initLocalPhoneCert(ControllerParams.newBuilder().setControllerVendorId(ChipClient.VENDOR_ID).build());
+        }
+
+
+        findViewById<View>(R.id.newControllerBtn).setOnClickListener {
+          deviceController = ChipClient.getDeviceController(requireContext())
+        }
+
+        findViewById<View>(R.id.pairDeviceBtn).setOnClickListener {
+          if (deviceInfo.ipAddress != null) {
+            pairDeviceWithAddress()
+          } else {
+            startConnectingToDevice()
+          }
+        }
+
       }
     }
   }
@@ -89,71 +122,15 @@ class DeviceProvisioningFragment : Fragment() {
   override fun onStop() {
     super.onStop()
     gatt = null
-    dialog = null
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    deviceController.close()
-    deviceController.setDeviceAttestationDelegate(0, EmptyAttestationDelegate())
-  }
-
-  private class EmptyAttestationDelegate : DeviceAttestationDelegate {
-    override fun onDeviceAttestationCompleted(
-      devicePtr: Long,
-      attestationInfo: AttestationInfo,
-      errorCode: Int) {}
-  }
-
-  private fun setAttestationDelegate() {
-    deviceController.setDeviceAttestationDelegate(DEVICE_ATTESTATION_FAILED_TIMEOUT
-    ) { devicePtr, _, errorCode ->
-      Log.i(TAG, "Device attestation errorCode: $errorCode, " +
-              "Look at 'src/credentials/attestation_verifier/DeviceAttestationVerifier.h' " +
-              "AttestationVerificationResult enum to understand the errors")
-
-      val activity = requireActivity()
-
-      if (errorCode == STATUS_PAIRING_SUCCESS) {       
-        activity.runOnUiThread(Runnable {
-          deviceController.continueCommissioning(devicePtr, true)
-        })
-
-        return@setDeviceAttestationDelegate
-      }
-
-      activity.runOnUiThread(Runnable {
-        if (dialog != null && dialog?.isShowing == true) {
-          Log.d(TAG, "dialog is already showing")
-          return@Runnable
-        }
-        dialog = AlertDialog.Builder(activity)
-          .setPositiveButton("Continue",
-              DialogInterface.OnClickListener { dialog, id ->
-                deviceController.continueCommissioning(devicePtr, true)
-              })
-          .setNegativeButton("No",
-              DialogInterface.OnClickListener { dialog, id ->
-                deviceController.continueCommissioning(devicePtr, false)
-              })
-          .setTitle("Device Attestation")
-          .setMessage("Device Attestation failed for device under commissioning. Do you wish to continue pairing?")
-          .show()
-      })
-    }
   }
 
   private fun pairDeviceWithAddress() {
     // IANA CHIP port
     val port = 5540
     val id = DeviceIdUtil.getNextAvailableId(requireContext())
-
     DeviceIdUtil.setNextAvailableId(requireContext(), id + 1)
-    deviceController.setCompletionListener(ConnectionCallback())
-
-    setAttestationDelegate()
-
-    deviceController.pairDeviceWithAddress(
+    deviceController?.setCompletionListener(ConnectionCallback())
+    deviceController?.pairDeviceWithAddress(
       id,
       deviceInfo.ipAddress,
       port,
@@ -167,6 +144,7 @@ class DeviceProvisioningFragment : Fragment() {
     if (gatt != null) {
       return
     }
+
     scope.launch {
       val bluetoothManager = BluetoothManager()
 
@@ -174,7 +152,7 @@ class DeviceProvisioningFragment : Fragment() {
         R.string.rendezvous_over_ble_scanning_text,
         deviceInfo.discriminator.toString()
       )
-      val device = bluetoothManager.getBluetoothDevice(requireContext(), deviceInfo.discriminator, deviceInfo.isShortDiscriminator) ?: run {
+      val device = bluetoothManager.getBluetoothDevice(requireContext(), deviceInfo.discriminator) ?: run {
         showMessage(R.string.rendezvous_over_ble_scanning_failed_text)
         return@launch
       }
@@ -186,26 +164,11 @@ class DeviceProvisioningFragment : Fragment() {
       gatt = bluetoothManager.connect(requireContext(), device)
 
       showMessage(R.string.rendezvous_over_ble_pairing_text)
-      deviceController.setCompletionListener(ConnectionCallback())
+      deviceController?.setCompletionListener(ConnectionCallback())
 
       val deviceId = DeviceIdUtil.getNextAvailableId(requireContext())
       val connId = bluetoothManager.connectionId
-      var network: NetworkCredentials? = null
-      var networkParcelable = checkNotNull(networkCredentialsParcelable)
-
-      val wifi = networkParcelable.wiFiCredentials
-      if (wifi != null) {
-        network = NetworkCredentials.forWiFi(NetworkCredentials.WiFiCredentials(wifi.ssid, wifi.password))
-      }
-
-      val thread = networkParcelable.threadCredentials
-      if (thread != null) {
-        network = NetworkCredentials.forThread(NetworkCredentials.ThreadCredentials(thread.operationalDataset))
-      }
-
-      setAttestationDelegate()
-
-      deviceController.pairDevice(gatt, connId, deviceId, deviceInfo.setupPinCode, network)
+      deviceController?.pairDevice(gatt, connId, deviceId, deviceInfo.setupPinCode, NetworkCredentials.forWiFi(NetworkCredentials.WiFiCredentials(networkCredentials?.wiFiCredentials?.ssid, networkCredentials?.wiFiCredentials?.password)))
       DeviceIdUtil.setNextAvailableId(requireContext(), deviceId + 1)
     }
   }
@@ -235,8 +198,6 @@ class DeviceProvisioningFragment : Fragment() {
           ?.onCommissioningComplete(0)
       } else {
         showMessage(R.string.rendezvous_over_ble_pairing_failure_text)
-        FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
-          ?.onCommissioningComplete(errorCode)
       }
     }
 
@@ -245,13 +206,23 @@ class DeviceProvisioningFragment : Fragment() {
 
       if (code != STATUS_PAIRING_SUCCESS) {
         showMessage(R.string.rendezvous_over_ble_pairing_failure_text)
-        FragmentUtil.getHost(this@DeviceProvisioningFragment, Callback::class.java)
-          ?.onCommissioningComplete(code)
       }
     }
 
     override fun onOpCSRGenerationComplete(csr: ByteArray) {
       Log.d(TAG, String(csr))
+    }
+
+    override fun onDeviceNoCGenerationComplete(deviceNoc: ByteArray?, ipk: ByteArray?) {
+
+    }
+
+    override fun getRemotePAA(byteArray: ByteArray, byteArray2: ByteArray) {
+      requireActivity().runOnUiThread {
+        Log.d(TAG, "getRemotePAA")
+        deviceController?.doDACWithNoCert(2, null)
+      }
+
     }
 
     override fun onPairingDeleted(code: Int) {
@@ -280,24 +251,17 @@ class DeviceProvisioningFragment : Fragment() {
     private const val STATUS_PAIRING_SUCCESS = 0
 
     /**
-     * Set for the fail-safe timer before onDeviceAttestationFailed is invoked.
-     *
-     * This time depends on the Commissioning timeout of your app.
-     */
-    private const val DEVICE_ATTESTATION_FAILED_TIMEOUT = 600
-
-    /**
-     * Return a new instance of [DeviceProvisioningFragment]. [networkCredentialsParcelable] can be null for
+     * Return a new instance of [DeviceProvisioningFragment]. [networkCredentials] can be null for
      * IP commissioning.
      */
     fun newInstance(
       deviceInfo: CHIPDeviceInfo,
-      networkCredentialsParcelable: NetworkCredentialsParcelable?,
+      networkCredentials: NetworkCredentialsParcelable?,
     ): DeviceProvisioningFragment {
       return DeviceProvisioningFragment().apply {
         arguments = Bundle(2).apply {
           putParcelable(ARG_DEVICE_INFO, deviceInfo)
-          putParcelable(ARG_NETWORK_CREDENTIALS, networkCredentialsParcelable)
+          putParcelable(ARG_NETWORK_CREDENTIALS, networkCredentials)
         }
       }
     }

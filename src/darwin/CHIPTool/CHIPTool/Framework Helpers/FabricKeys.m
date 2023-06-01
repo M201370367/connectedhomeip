@@ -15,7 +15,7 @@
  */
 
 #import "FabricKeys.h"
-
+#import <Matter/MTRDeviceControllerStartupParams.h>
 #import <Security/SecKey.h>
 
 @interface FabricKeys ()
@@ -39,22 +39,25 @@ static const NSString * MTRCAKeyChainLabel = @"matter-tool.nodeopcerts.CA:0";
 
 + (NSData *)loadIPK
 {
-    NSMutableDictionary * query = [[NSMutableDictionary alloc] initWithDictionary:[FabricKeys ipkParams]];
-    query[(__bridge NSString *) kSecReturnData] = @(YES);
-
-    // The CFDataRef we get from SecItemCopyMatching allocates its buffer in a
-    // way that zeroes it when deallocated.
-    CFDataRef keyDataRef;
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef) query, (CFTypeRef *) &keyDataRef);
-    if (status != errSecSuccess || keyDataRef == nil) {
-        NSLog(@"Did not find IPK in the keychain");
-        return nil;
-    }
-
-    NSLog(@"Found an existing IPK in the keychain");
-    NSData * keyData = CFBridgingRelease(keyDataRef);
-
-    return [[NSData alloc] initWithBase64EncodedData:keyData options:0];
+    //Using default as same as other platform (Android, gateway)
+    return [MTRDeviceControllerStartupParams defaultIPK];
+    
+//    NSMutableDictionary * query = [[NSMutableDictionary alloc] initWithDictionary:[FabricKeys ipkParams]];
+//    query[(__bridge NSString *) kSecReturnData] = @(YES);
+//
+//    // The CFDataRef we get from SecItemCopyMatching allocates its buffer in a
+//    // way that zeroes it when deallocated.
+//    CFDataRef keyDataRef;
+//    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef) query, (CFTypeRef *) &keyDataRef);
+//    if (status != errSecSuccess || keyDataRef == nil) {
+//        NSLog(@"Did not find IPK in the keychain");
+//        return nil;
+//    }
+//
+//    NSLog(@"Found an existing IPK in the keychain");
+//    NSData * keyData = CFBridgingRelease(keyDataRef);
+//
+//    return [[NSData alloc] initWithBase64EncodedData:keyData options:0];
 }
 
 + (NSData *)generateIPK

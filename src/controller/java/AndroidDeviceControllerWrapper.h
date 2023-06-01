@@ -55,6 +55,8 @@ class AndroidDeviceControllerWrapper : public chip::Controller::DevicePairingDel
 public:
     ~AndroidDeviceControllerWrapper();
 
+    static constexpr chip::NodeId kMjAppCASEAuthTag        = 0xFFFF'FFFD'0002'0001ULL; //0x00020001;
+    static constexpr chip::NodeId kMjGateWayCASEAuthTag    = 0xFFFF'FFFD'0001'0001ULL; //0x00010001;
     chip::Controller::DeviceCommissioner * Controller() { return mController.get(); }
     void SetJavaObjectRef(JavaVM * vm, jobject obj);
     jobject JavaObjectRef() { return mJavaObjectRef; }
@@ -158,6 +160,7 @@ public:
      * @param[in] skipCommissioningComplete whether to skip the CASE commissioningComplete command during commissioning
      * @param[out] errInfoOnFailure a pointer to a CHIP_ERROR that will be populated if this method returns nullptr
      */
+
     static AndroidDeviceControllerWrapper *
     AllocateNew(JavaVM * vm, jobject deviceControllerObj, chip::NodeId nodeId, chip::FabricId fabricId,
                 const chip::CATValues & cats, chip::System::Layer * systemLayer,
@@ -172,6 +175,25 @@ public:
                 jbyteArray nodeOperationalCertificate, jbyteArray ipkEpochKey, uint16_t listenPort, uint16_t controllerVendorId,
                 uint16_t failsafeTimerSeconds, bool attemptNetworkScanWiFi, bool attemptNetworkScanThread,
                 bool skipCommissioningComplete, CHIP_ERROR * errInfoOnFailure);
+
+        static AndroidDeviceControllerWrapper *
+        FirstAllocateNew(JavaVM * vm, jobject deviceControllerObj, chip::NodeId nodeId, chip::FabricId fabricId,
+                    const chip::CATValues & cats, chip::System::Layer * systemLayer,
+                    chip::Inet::EndPointManager<chip::Inet::TCPEndPoint> * tcpEndPointManager,
+                    chip::Inet::EndPointManager<chip::Inet::UDPEndPoint> * udpEndPointManager,
+                    AndroidOperationalCredentialsIssuerPtr opCredsIssuer, jobject keypairDelegate, jbyteArray rootCertificate,
+                    jbyteArray intermediateCertificate, jbyteArray nodeOperationalCertificate, jbyteArray ipkEpochKey,
+                    uint16_t listenPort, uint16_t controllerVendorId, uint16_t failsafeTimerSeconds, bool attemptNetworkScanWiFi,
+                    bool attemptNetworkScanThread, bool skipCommissioningComplete, CHIP_ERROR * errInfoOnFailure);
+        CHIP_ERROR getPhoneCertCSR();
+        CHIP_ERROR initLocalPhoneCert(chip::NodeId nodeId, chip::FabricId fabricId,
+                    const chip::CATValues & cats, chip::System::Layer * systemLayer,
+                    chip::Inet::EndPointManager<chip::Inet::TCPEndPoint> * tcpEndPointManager,
+                    chip::Inet::EndPointManager<chip::Inet::UDPEndPoint> * udpEndPointManager,
+                    jobject keypairDelegate, jbyteArray rootCertificate,
+                    jbyteArray intermediateCertificate, jbyteArray nodeOperationalCertificate, jbyteArray ipkEpochKey,
+                    uint16_t listenPort, uint16_t controllerVendorId, uint16_t failsafeTimerSeconds, bool attemptNetworkScanWiFi,
+                    bool attemptNetworkScanThread, bool skipCommissioningComplete, CHIP_ERROR * errInfoOnFailure);
 
 #ifdef JAVA_MATTER_CONTROLLER_TEST
     chip::Controller::ExampleOperationalCredentialsIssuer * GetAndroidOperationalCredentialsIssuer()
@@ -193,7 +215,8 @@ private:
     using ChipDeviceControllerPtr = std::unique_ptr<chip::Controller::DeviceCommissioner>;
 
     ChipDeviceControllerPtr mController;
-
+    DevicePairingDelegate * mPairingDelegate;
+    PersistentStorageDelegate * mStorage;
     // TODO: This may need to be injected as a GroupDataProvider*
     chip::Credentials::GroupDataProviderImpl mGroupDataProvider;
     // TODO: This may need to be injected as an OperationalCertificateStore *

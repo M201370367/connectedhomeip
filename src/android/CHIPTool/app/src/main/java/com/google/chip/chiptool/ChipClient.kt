@@ -34,6 +34,8 @@ import com.google.chip.chiptool.attestation.ExampleAttestationTrustStoreDelegate
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import org.w3c.dom.Node
+import java.math.BigInteger
 
 /** Lazily instantiates [ChipDeviceController] and holds a reference to it. */
 object ChipClient {
@@ -41,17 +43,30 @@ object ChipClient {
   private lateinit var chipDeviceController: ChipDeviceController
   private lateinit var androidPlatform: AndroidChipPlatform
   /* 0xFFF4 is a test vendor ID, replace with your assigned company ID */
-  private const val VENDOR_ID = 0xFFF4
+  public const val VENDOR_ID = 0xFFF4
+  public const val ISSUERNodeId = 1020304050L
 
   fun getDeviceController(context: Context): ChipDeviceController {
     getAndroidChipPlatform(context)
+    var adminSubject = BigInteger("FFFFFFFD00010001", 16)
+    if (!this::chipDeviceController.isInitialized) {
+        chipDeviceController = ChipDeviceController(ControllerParams.newBuilder().setControllerVendorId(VENDOR_ID)
+                  .setIssuerNodeId(ISSUERNodeId)
+                  .setAdminSubject(adminSubject.toLong()).build())
+      }
+    return chipDeviceController
+    }
+
+  fun getDeviceControllerWithoutInitCert(context: Context): ChipDeviceController {
+    getAndroidChipPlatform(context)
 
     if (!this::chipDeviceController.isInitialized) {
-      chipDeviceController = ChipDeviceController(ControllerParams.newBuilder().setControllerVendorId(VENDOR_ID).build())
+      chipDeviceController = ChipDeviceController()
+      chipDeviceController.initChipDeviceControllerWithoutInitCert(ControllerParams.newBuilder().setControllerVendorId(VENDOR_ID).build())
 
       // Set delegate for attestation trust store for device attestation verifier.
       // It will replace the default attestation trust store.
-      chipDeviceController.setAttestationTrustStoreDelegate(ExampleAttestationTrustStoreDelegate(chipDeviceController))
+//      chipDeviceController.setAttestationTrustStoreDelegate(ExampleAttestationTrustStoreDelegate(chipDeviceController))
     }
 
     return chipDeviceController
@@ -61,7 +76,7 @@ object ChipClient {
     if (!this::androidPlatform.isInitialized && context != null) {
       //force ChipDeviceController load jni
       ChipDeviceController.loadJni()
-      androidPlatform = AndroidChipPlatform(AndroidBleManager(), PreferencesKeyValueStoreManager(context), PreferencesConfigurationManager(context), NsdManagerServiceResolver(context), NsdManagerServiceBrowser(context), ChipMdnsCallbackImpl(), DiagnosticDataProviderImpl(context))
+      androidPlatform = AndroidChipPlatform(AndroidBleManager(), PreferencesKeyValueStoreManager(context, "", "1"), PreferencesConfigurationManager(context), NsdManagerServiceResolver(context), NsdManagerServiceBrowser(context), ChipMdnsCallbackImpl(), DiagnosticDataProviderImpl(context))
     }
 
     return androidPlatform

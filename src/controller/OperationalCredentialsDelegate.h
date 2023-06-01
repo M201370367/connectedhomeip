@@ -25,6 +25,7 @@
 #include <lib/support/DLLUtil.h>
 #include <lib/support/Span.h>
 #include <transport/raw/MessageHeader.h>
+#include <credentials/attestation_verifier/DeviceAttestationVerifier.h>
 
 namespace chip {
 namespace Controller {
@@ -66,6 +67,8 @@ public:
                                         const ByteSpan & attestationSignature, const ByteSpan & attestationChallenge,
                                         const ByteSpan & DAC, const ByteSpan & PAI,
                                         Callback::Callback<OnNOCChainGeneration> * onCompletion) = 0;
+
+    virtual void getRemotePAA(Credentials::DeviceAttestationVerifier::AttestationInfo & info, ByteSpan paiCert, ByteSpan dacCert){}
 
     /**
      *   This function sets the node ID for which the next NOC Chain would be requested. The node ID is

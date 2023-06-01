@@ -684,6 +684,20 @@ static void ShutdownOnExit() { [[MTRDeviceControllerFactory sharedInstance] stop
     return controller;
 }
 
+- (NSData * _Nullable)csrDataForFabricID:(uint8_t)fabricIndex {
+    uint8_t csrBuffer[chip::Crypto::kMAX_CSR_Length];
+    chip::MutableByteSpan csr(csrBuffer);
+    _keystore->NewOpKeypairForFabric(fabricIndex, csr);
+    
+    chip::Crypto::P256PublicKey pubKey;
+    CHIP_ERROR errorCode = VerifyCertificateSigningRequest(csr.data(), csr.size(), pubKey);
+    if (CHIP_NO_ERROR == errorCode) {
+        NSLog(@"succeed");
+    }
+    
+    return AsData(csr);
+}
+
 - (MTRDeviceController * _Nullable)createController
 {
     MTRDeviceController * controller = [[MTRDeviceController alloc] initWithFactory:self queue:_chipWorkQueue];

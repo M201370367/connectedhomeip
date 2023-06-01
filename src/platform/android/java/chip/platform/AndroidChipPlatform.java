@@ -43,6 +43,10 @@ public final class AndroidChipPlatform {
     return mBleManager;
   }
 
+  public void setSharePrefStoreManager(KeyValueStoreManager manager) {
+    setKeyValueStoreManager(manager);
+  }
+
   private void setBLEManager(BleManager manager) {
     if (manager != null) {
       mBleManager = manager;
